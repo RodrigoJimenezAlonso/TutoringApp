@@ -1,29 +1,55 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+/build/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Android
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/.gradle/
+android/captures/
+android/gradle/wrapper/gradle-wrapper.properties
+android/local.properties
+**/android/app/src/main/jniLibs/
+**/android/key.properties
+**/android/app/key.jks
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# iOS
+ios/.generated/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png
+ios/Pods/
+ios/Podfile.lock
+ios/Flutter/ephemeral/
 
-### VS Code ###
+# Web
+web/.dart_tool/
+web/.packages
+
+# Desktop
+windows/flutter/ephemeral/
+macos/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio Code
 .vscode/
+.history/
 
-### Mac OS ###
-.DS_Store
+# Miscellaneous
+*.log
+*.lock
+*.DS_Store
+*.moved
