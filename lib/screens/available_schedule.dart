@@ -88,7 +88,7 @@ class AvailableSchedule extends StatelessWidget {
     try{
       final response = await Supabase.instance.client
           .from('schedules')
-          .select()
+          .select('*')
           .eq('professorId', professorId)
           .eq('isBooked', false);
       return response as List<Map<String, dynamic>>;

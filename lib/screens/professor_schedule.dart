@@ -31,8 +31,7 @@ ProfessorSchedule({
         future: Supabase.instance.client
             .from('schedules')
             .select()
-            .eq('professorId', professorId)
-            .select(),
+            .eq('professorId', professorId),
         builder: (context, snapshot){
           if(snapshot.connectionState == ConnectionState.waiting){
             return const Center(child: CircularProgressIndicator());

@@ -10,13 +10,13 @@ Future<void> _selectMediaToUpload(String groupId, BuildContext context) async {
     final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File file = File(pickedFile.path);
-
+      final filePath = 'public/$groupId/${file.uri.pathSegments.last}';
       await Supabase.instance.client.storage
           .from('chat_media')
-          .upload('public/$groupId/${file.uri.pathSegments.last}', file);
+          .upload(filePath, file);
       final downloadUrlResponse = Supabase.instance.client.storage
           .from('chat_media')
-          .getPublicUrl('public/$groupId/${file.uri.pathSegments.last}');
+          .getPublicUrl(filePath);
       final downloadUrl = downloadUrlResponse;
 
       if (downloadUrl.isEmpty) {
@@ -43,14 +43,14 @@ Future<void> _selectDocumentToUpload(String groupId, BuildContext context) async
 
     if (result != null) {
       File file = File(result.files.single.path!);
+      final filePath = 'public/$groupId/${file.uri.pathSegments.last}';
       await Supabase.instance.client.storage
           .from('chat_files')
-          .upload('public/$groupId/${file.uri.pathSegments.last}', file);
-      final downloadUrlResponse = Supabase.instance.client.storage
+          .upload(filePath, file);
+      final downloadUrl = Supabase.instance.client.storage
           .from('chat_files')
-          .getPublicUrl('public/$groupId/${file.uri.pathSegments.last}');
+          .getPublicUrl(filePath);
 
-      final downloadUrl = downloadUrlResponse;
       if (downloadUrl.isEmpty) {
         throw Exception('Failed to retrieve download URL');
       }

@@ -27,10 +27,14 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
           .from('groups')
           .select('groupDescription')
           .eq('id', widget.groupId)
-          .single();
+          .maybeSingle();
+      if(response != null){
         setState(() {
           _descriptionController.text = response['groupDescription'] ?? '';
         });
+      }else{
+        throw Exception('Group not found');
+      }
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load group data: $e'))

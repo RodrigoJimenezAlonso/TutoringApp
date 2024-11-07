@@ -12,7 +12,12 @@ class FeedbackController{
         'comment': comment,
         'timeStamp':DateTime.now().toIso8601String(),
       };
-      await Supabase.instance.client.from('feedback').insert(feedback);
+      final response = await Supabase.instance.client
+          .from('feedback')
+          .upsert(feedback);
+      if(response.error != null){
+        throw response.error!;
+      }
     }catch(e){
       print('Error saving the feedback: $e');
     }
@@ -24,6 +29,7 @@ class FeedbackController{
           .from('feedback')
           .select('rating')
           .eq('teacherId', teacherId);
+
       final List<dynamic> ratings = response ?? [];
       if(ratings.isEmpty){
         return 0.0;

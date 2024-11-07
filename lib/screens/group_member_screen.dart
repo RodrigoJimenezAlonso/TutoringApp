@@ -10,14 +10,19 @@ class GroupMemberScreen extends StatelessWidget{
 
   void removeUserFromGroup(BuildContext context, String groupId, String userId)async{
     try{
-      await Supabase.instance.client
+      final res = await Supabase.instance.client
           .from('groups')
           .update({
-        'members': [{
-          "userId": userId,
-          "role": 'member',
-        }]
-      }).eq('id', groupId);
+            'members': Supabase.instance.client.rpc('remove_member_from_group',
+              params: {
+                'group_id': groupId,
+                'user_id': userId
+              })
+          })
+          .eq('id', groupId);
+      if(res.error != null){
+        throw res.error!;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('user removed successfully'))
       );

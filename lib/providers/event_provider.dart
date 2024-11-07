@@ -9,16 +9,17 @@ class EventProvider extends ChangeNotifier{
 
   Future<void> loadEvents() async{
     final response = await Supabase.instance.client
-      .from('events');
-    //tenemos que cambiar select es deprecado
-    if(response.error == null){
+      .from('events')
+      .select('*');
+
+    /*if(response.error == null){
       _events = (response.data as List)
         .map((eventMap) => Event.fromMap(eventMap))
         .toList();
       notifyListeners();
     }else{
       print(response.error!.message);
-    }
+    }*/
   }
 
   Future<void> addEvent(Event event) async{
