@@ -53,3 +53,5 @@ linux/flutter/ephemeral/
 *.lock
 *.DS_Store
 *.moved
+
+/build
