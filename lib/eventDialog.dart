@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'datePicker.dart'; // Replace with the correct path to your DatePicker file
+import 'datePicker.dart';
 import 'data.dart';
 
 class EvtController extends StatefulWidget {
@@ -8,102 +8,81 @@ class EvtController extends StatefulWidget {
 }
 
 class _EvtControllerState extends State<EvtController> {
-  late Data data;
+  final Data _data = Data();
+  List<Map<String, dynamic>> _events = [];
 
   @override
   void initState() {
     super.initState();
-    data = Data();
     _fetchEvents();
   }
 
-  Future<void> _fetchEvents()async{
-    try{
-      final events = await data.getAllEvents();
-      print(events);
-    }catch(e){
-      print('error fetching events: $e');
+  Future<void> _fetchEvents() async {
+    try {
+      final events = await _data.getAllEvents();
+      setState(() {
+        _events = events;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
     }
   }
 
   Future<Map<String, dynamic>?> _showEventDialog(BuildContext context) async {
-    final TextEditingController titleController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
     DateTime? selectedDate;
 
-    return await showDialog<Map<String, dynamic>>(
+    return showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
+        return AlertDialog(
           title: Text('Add New Event'),
-          contentPadding: EdgeInsets.all(20.0),
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(
-                labelText: 'Title',
-              ),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              controller: descriptionController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              child: Text('Select Date & Time'),
-              onPressed: () async {
-                selectedDate = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DatePicker()),
-                );
-              },
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+          content: SingleChildScrollView(
+            child: Column(
               children: [
-                TextButton(
-                  child: Text('Cancel'),
-                  onPressed: () {
-                    Navigator.pop(
-                        context, null); // Close the dialog and return null
-                  },
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(labelText: 'Title'),
                 ),
-                SizedBox(width: 10),
+                TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                ),
+                SizedBox(height: 10),
                 ElevatedButton(
-                  child: Text('Add'),
-                  onPressed: () {
-                    if (titleController.text.isNotEmpty &&
-                        descriptionController.text.isNotEmpty &&
-                        selectedDate != null) {
-                      final newEvent = {
-                        "id": DateTime
-                            .now()
-                            .millisecondsSinceEpoch
-                            .toString(),
-                        "title": titleController.text,
-                        "description": descriptionController.text,
-                        "startTime": selectedDate!.toIso8601String(),
-                        "endTime": DateTime.now().toIso8601String(),
-                      };
-                      Navigator.of(context).pop(newEvent);
-                      Navigator.of(context).pop({
-                        "id": DateTime
-                            .now()
-                            .millisecondsSinceEpoch
-                            .toString(),
-                        "title": titleController.text,
-                        "description": descriptionController.text,
-                        "startTime": selectedDate!.toIso8601String(),
-                        "endTime": DateTime.now().toIso8601String(),
-                      });
-                    }
+                  child: Text('Select Date & Time'),
+                  onPressed: () async {
+                    selectedDate = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DatePicker()),
+                    );
                   },
                 ),
               ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.pop(context, null),
+            ),
+            ElevatedButton(
+              child: Text('Add'),
+              onPressed: () {
+                if (titleController.text.isNotEmpty &&
+                    descriptionController.text.isNotEmpty &&
+                    selectedDate != null) {
+                  final newEvent = {
+                    "id": DateTime.now().millisecondsSinceEpoch.toString(),
+                    "title": titleController.text,
+                    "description": descriptionController.text,
+                    "startTime": selectedDate!.toIso8601String(),
+                    "endTime": DateTime.now().toIso8601String(),
+                  };
+                  Navigator.pop(context, newEvent);
+                }
+              },
             ),
           ],
         );
@@ -111,20 +90,38 @@ class _EvtControllerState extends State<EvtController> {
     );
   }
 
-  @override Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Center(
-      child: ElevatedButton(
-        onPressed: () async {
-          final newEvent = await _showEventDialog(context);
-          if(newEvent != null){
-            await data.addEvent(newEvent);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Event "${newEvent['title']}" added')),
-            );
-          }
-        },
-        child: Text('Create an Event'),
-    ),
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              final newEvent = await _showEventDialog(context);
+              if (newEvent != null) {
+                await _data.addEvent(newEvent);
+                _fetchEvents(); // Refresh the events list after adding a new event
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Event "${newEvent['title']}" added')),
+                );
+              }
+            },
+            child: Text('Create an Event'),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                final event = _events[index];
+                return ListTile(
+                  title: Text(event['title']),
+                  subtitle: Text(event['description']),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

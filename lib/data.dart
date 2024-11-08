@@ -18,9 +18,7 @@ class Data {
  Future<void> addEvent(Map<String, dynamic> event)async{
     final response = await http.post(
       Uri.parse(baseUrl),
-      headers: <String, String>{
-        'Content-Type': 'application/json;charset=UTF-8'
-      },
+      headers: {'Content-Type': 'application/json;charset=UTF-8'},
       body: json.encode(event),
     );
   }

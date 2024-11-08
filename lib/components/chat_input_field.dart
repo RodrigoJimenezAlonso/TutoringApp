@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
 
-final TextEditingController messageController = TextEditingController();
+class ChatInputField extends StatelessWidget{
+  final TextEditingController messageController = TextEditingController();
 
+  final Function(String) onSend;
+  ChatInputField({required this.onSend});
+  @override
 
-/*
-Row(
-  children: [
-    IconButton(
-      onPressed: ()=> __selectMediaToUpload(groupId),
-      icon: Icon(Icons.photo),
-    ),
-    IconButton(
-      onPressed: ()=> __selectDocumentToUpload(groupId),
-      icon: Icon(Icons.attach_file),
-    ),
-  ],
-)*/
-
-/*
-TextField(
-  controller: messageController,
-  decoration: InputDecoration(
-    hintText: 'type a message',
-  ),
-)*/
-
-
+  Widget build (BuildContext context){
+    return Row(
+      children: [
+        Expanded(
+            child: TextField(
+              controller: messageController,
+              decoration: InputDecoration(
+                hintText: 'Enter your message'
+              ),
+            ),
+        ),
+        IconButton(
+            onPressed: (){
+              if(messageController.text.isNotEmpty){
+                onSend(messageController.text);
+                messageController.clear();
+              }
+            },
+            icon: Icon(Icons.send),
+        )
+      ],
+    );
+  }
+}

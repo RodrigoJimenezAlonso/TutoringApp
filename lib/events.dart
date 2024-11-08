@@ -1,5 +1,4 @@
 import 'models/event.dart';
-import 'data2.dart';
 import 'package:flutter/material.dart';
 import 'datePicker.dart';
 import 'providers/event_provider.dart';
@@ -11,7 +10,6 @@ class EventsController extends StatefulWidget {
 }
 
 class _EventsControllerState extends State<EventsController> {
-  late Data data;
   late List<dynamic> events;
 
   @override

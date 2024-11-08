@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
+import 'package:proyecto_rr_principal/auth/login_page.dart';
 import 'eventos2.dart';
 import 'events.dart';
 import 'providers/event_provider.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'date picker alert',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: EventsController(),
+        home: LoginPage(),
       ),
     );
 
