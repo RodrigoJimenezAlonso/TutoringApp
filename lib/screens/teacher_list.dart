@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
@@ -21,14 +23,11 @@ class _TeacherListState extends State<TeacherList> {
       final filteredTeachers = await Future.wait(teachers.map((teacher) async {
         final teacherId = teacher['id'];
         final averageRating = await FeedbackController.getAverageRating(teacherId);
-        if (averageRating >= _minRating) {
-          return {
-            'teacherId': teacherId,
-            'name': teacher['name'],
-            'averageRating': averageRating,
-          };
-        }
-        return null;
+        return averageRating >= _minRating?{
+          'teacherId': teacherId,
+          'name': teacher['name'],
+          'averageRating': averageRating,
+        }: null;
       }));
       return filteredTeachers.where((teacher) => teacher != null).cast<Map<String, dynamic>>().toList();
     }catch(e){
@@ -59,9 +58,11 @@ class _TeacherListState extends State<TeacherList> {
                     );
                   }).toList(),
                   onChanged: (newRating) {
-                    setState(() {
-                      _minRating = newRating!;
-                    });
+                    if(newRating != null){
+                      setState(() {
+                        _minRating = newRating!;
+                      });
+                    }
                   },
                 ),
               ],

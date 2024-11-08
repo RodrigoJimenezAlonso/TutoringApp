@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
-import '../screens/teacher_feedbach_history.dart';
+import '../screens/teacher_feedback_history.dart';
 
 class TeacherProfile extends StatelessWidget{
   final String teacherId;
@@ -22,7 +22,7 @@ class TeacherProfile extends StatelessWidget{
           if(!snapshot.hasData){
             return Center(child: CircularProgressIndicator());
           }
-          final averageRating = snapshot.data?? 0;
+          final averageRating = snapshot.data?? 0.0;
           return Column(
             children: [
               Text('Average Rating: $averageRating stars'),

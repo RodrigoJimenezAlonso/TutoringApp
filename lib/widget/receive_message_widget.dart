@@ -11,20 +11,43 @@ class ReceiveMessageWidget extends StatefulWidget{
 class _ReceiveMessageWidgetState extends State<ReceiveMessageWidget>{
   late SecretKey _recipientKey;
   String _decryptedMessage = '';
+  bool _isKeyInitialized = false;
+  @override
+  void initState(){
+    super.initState();
+    _initializedRecipientKey();
+  }
+
+  Future<void> _initializedRecipientKey()async{
+    final keyService = KeyService();
+    _recipientKey = await keyService.generateKey();
+    setState(() {
+      _isKeyInitialized = true;
+    });
+  }
+
   Future<void> _receiveMessage(List<int> encryptedMessage) async{
-    final tag = encryptedMessage.sublist(encryptedMessage.length - 16);
-    final nonce = encryptedMessage.sublist(encryptedMessage.length - 32, encryptedMessage.length - 16);
-    final cipherText = encryptedMessage.sublist(0, encryptedMessage.length -32);
-    final secretBox = SecretBox(
+    if(!_isKeyInitialized){
+      print('My recipient key has not being initialized');
+      return;
+    }
+    try{
+      final tag = encryptedMessage.sublist(encryptedMessage.length - 16);
+      final nonce = encryptedMessage.sublist(encryptedMessage.length - 32, encryptedMessage.length - 16);
+      final cipherText = encryptedMessage.sublist(0, encryptedMessage.length -32);
+      final secretBox = SecretBox(
         cipherText,
         nonce: nonce,
         mac: Mac(tag),
-    );
-    final encryptionService = EncryptionService(_recipientKey);
-    final decryptedMessage = await encryptionService.decrypt(secretBox);
-    setState(() {
-      _decryptedMessage = decryptedMessage;
-    });
+      );
+      final encryptionService = EncryptionService(_recipientKey);
+      final decryptedMessage = await encryptionService.decrypt(secretBox);
+      setState(() {
+        _decryptedMessage = decryptedMessage;
+      });
+    }catch(e){
+      print('Error encrypting message: $e');
+    }
   }
 
   @override

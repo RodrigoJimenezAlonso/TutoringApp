@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'feedback_controller.dart';
 
@@ -27,9 +28,11 @@ class TeacherFeedbackHistory extends StatelessWidget{
                 itemCount: feedbackList.length,
                 itemBuilder: (context, index){
                   final feedback = feedbackList[index];
-                  final rating = feedback['rating'];
-                  final comment = feedback['comment'];
-                  final timeStamp = feedback['timeStamp'];
+                  final rating = feedback['rating']?? 'No rating';
+                  final comment = feedback['comment']?? 'No comment';
+                  final timeStamp = feedback['timeStamp'] != null
+                      ? DateFormat.yMd().add_Hm().format(DateTime.parse(feedback['timeStamp']))
+                      : 'Unknown date';
                   return ListTile(
                     leading: Icon(
                       Icons.star,
