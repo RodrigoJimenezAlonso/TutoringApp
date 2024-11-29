@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'datePicker.dart';
 import 'providers/event_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventsController extends StatefulWidget {
   @override
@@ -10,13 +12,12 @@ class EventsController extends StatefulWidget {
 }
 
 class _EventsControllerState extends State<EventsController> {
-  late List<dynamic> events;
+  late List<Event> events;
+  final uuid = Uuid();
 
   @override
   void initState() {
     super.initState();
-    //data = Data();
-    //events = data.getAllEvents();
     Future.microtask(() => Provider.of<EventProvider>(context, listen: false).loadEvents());
   }
 
@@ -30,7 +31,7 @@ class _EventsControllerState extends State<EventsController> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Navigate to DatePicker component
+              // Navega al componente DatePicker
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => DatePicker()),
@@ -53,7 +54,7 @@ class _EventsControllerState extends State<EventsController> {
     );
   }
 
-  Widget _buildEventCard(Map<String, dynamic> event) {
+  Widget _buildEventCard(Event event) {
     return Card(
       margin: EdgeInsets.all(10),
       child: Padding(
@@ -62,7 +63,7 @@ class _EventsControllerState extends State<EventsController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              event['title'],
+              event.title,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -70,18 +71,18 @@ class _EventsControllerState extends State<EventsController> {
             ),
             SizedBox(height: 10),
             Text(
-              event['description'],
+              event.description,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
               ),
             ),
             SizedBox(height: 10),
-            _buildEventTimeRow(Icons.schedule, 'start: ${event['startTime']}'),
+            _buildEventTimeRow(Icons.schedule, 'start: ${event.startTime}'),
             SizedBox(height: 5),
-            _buildEventTimeRow(Icons.schedule, 'end: ${event['endTime']}'),
+            _buildEventTimeRow(Icons.schedule, 'end: ${event.endTime}'),
             SizedBox(height: 10),
-            _buildEventLocationRow(event['location']),
+            _buildEventLocationRow('Location not specified'),
           ],
         ),
       ),
@@ -91,7 +92,7 @@ class _EventsControllerState extends State<EventsController> {
   Widget _buildEventTimeRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey,),
+        Icon(icon, color: Colors.grey),
         SizedBox(width: 5),
         Text(
           text,
@@ -104,10 +105,10 @@ class _EventsControllerState extends State<EventsController> {
   Widget _buildEventLocationRow(String location) {
     return Row(
       children: [
-        Icon(Icons.location_on, color: Colors.grey,),
+        Icon(Icons.location_on, color: Colors.grey),
         SizedBox(width: 5),
         Text(
-          'location: $location',
+          location,
           style: TextStyle(color: Colors.grey[600]),
         ),
       ],
@@ -117,6 +118,7 @@ class _EventsControllerState extends State<EventsController> {
   Future<void> _showEventDialog(DateTime selectedDate) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
+
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -144,13 +146,27 @@ class _EventsControllerState extends State<EventsController> {
             ElevatedButton(
               child: Text('Add'),
               onPressed: () {
+                final user = Supabase.instance.client.auth.currentUser;
+
+                // Verifica si el usuario está autenticado
+                if (user == null) {
+                  print('User not authenticated');
+                  Navigator.pop(context);
+                  return;
+                }
+
+                final userId = user.id; // Obtén el user_id del usuario autenticado
+                print('Authenticated user ID: $userId'); // Imprime el user_id para verificación
+
                 final newEvent = Event(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  id: uuid.v4(),
                   title: titleController.text,
                   description: descriptionController.text,
                   startTime: selectedDate,
                   endTime: selectedDate.add(Duration(hours: 1)),
+                  userId: userId, // Asocia el evento con el userId del usuario autenticado
                 );
+
                 Provider.of<EventProvider>(context, listen: false).addEvent(newEvent);
                 Navigator.pop(context);
               },

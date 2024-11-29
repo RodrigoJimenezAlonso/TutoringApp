@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (res.user != null) {
+        print('User signed in with ID: ${res.user!.id}'); // Imprime el user_id para confirmar
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => EventsController()),
         );

@@ -8,7 +8,7 @@ import 'providers/event_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://apoqmydfyxjevyxvymoz.supabase.co',
@@ -17,6 +17,7 @@ void main() async{
   Stripe.publishableKey = 'pk_test_51Q3h3zP0TUOqrBT5Mu4ludEI8Nd3Wvfhprjx55suOFbbZT87NFIcKKznHqKqfnqhTcK9UotvqcXytQhFM250NcWL00Gz7EE6rE';
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

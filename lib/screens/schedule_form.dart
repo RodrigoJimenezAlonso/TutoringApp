@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 import '../models/schedule.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,13 +29,17 @@ class _ScheduleFormState extends State<ScheduleForm>{
         endTime: _endTime!,
       );
       try{
-
-        final response = await Supabase.instance.client
-          .from('schedules')
-          .insert(schedule.toMap());
-        if(response.error != null){
-          throw response.error!;
-        }
+        final conn = await MySQLHelper.connect();
+        final result = await conn.query(
+          'INSERT INTO schedules(professorId, date, startTime, endTime) VALUES (?,?,?,?)',
+          [
+            schedule.professorId,
+            schedule.date.toIso8601String(),
+            _convertTimeOfDayToDateTime(_startTime!).toIso8601String(),
+            _convertTimeOfDayToDateTime(_endTime!).toIso8601String(),
+          ],
+        );
+        await conn.close();
 
         Navigator.pop(context);
       }catch(e){

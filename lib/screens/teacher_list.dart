@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
@@ -16,26 +17,45 @@ class _TeacherListState extends State<TeacherList> {
 
   Future<List<Map<String, dynamic>>> _getFilteredTeacher() async {
     try{
-      final response = await Supabase.instance.client
-          .from('teachers')
-          .select('*');
-      final List<dynamic> teachers = response as List<dynamic>;
-      final filteredTeachers = await Future.wait(teachers.map((teacher) async {
-        final teacherId = teacher['id'];
-        final averageRating = await FeedbackController.getAverageRating(teacherId);
-        return averageRating >= _minRating?{
-          'teacherId': teacherId,
-          'name': teacher['name'],
-          'averageRating': averageRating,
-        }: null;
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT id,name FROM teachers'
+      );
+      final teachers = await Future.wait(result.map((row) async{
+        final teacherId = row['id'];
+        final name = row['name'];
+        
+        final averageRating = await _getAverageRating(teacherId);
+        if(averageRating >= _minRating){
+          return{
+            'teacherId': teacherId,
+            'name': name,
+            'averageRating': averageRating,
+          };
+        }
+        return null;
       }));
-      return filteredTeachers.where((teacher) => teacher != null).cast<Map<String, dynamic>>().toList();
-    }catch(e){
+      await conn.close();
+      return teachers.whereType<Map<String, dynamic>>().toList();
+      
+      }catch(e){
       print('Error fetching teachers: $e');
       return [];
     }
   }
 
+  Future<double> _getAverageRating(int teacherId) async{
+    final conn = await MySQLHelper.connect();
+    final results  = await conn.query(
+      'SELECT AVG(rating) AS averageRating FROM feedbacks WHERE teacherId = ?',
+      [teacherId]
+    );
+    await conn.close();
+    if(results.isNotEmpty){
+      return results.first['averageRating'] ?? 0.0;
+    }
+    return 0.0;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
