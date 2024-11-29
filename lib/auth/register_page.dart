@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../auth/login_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'send_email.dart';
+import 'package:bcrypt/bcrypt.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -31,41 +32,23 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
     try {
-      final res = await Supabase.instance.client.auth.signUp(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      final conn = await MySQLHelper.connect();
+      final passwordHash = BCrypt.hashpw(passwordController.text.trim(), BCrypt.gensalt());
+
+      await conn.query(
+        'INSERT INTO users(email, password_hash) VALUES(?,?)',
+        [emailController.text.trim(), passwordHash],
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context)=> LoginPage()
+        )
       );
 
-      if (res.user != null) {
-        print("User created: ${res.user!.email}");
-        setState(() {
-          errorMessage = "Registration successful. Please check your email for confirmation.";
-        });
-
-        sendEmail(
-            emailController.text.trim(),
-            'Welcome to our app',
-            'Thank you for registering! We are excited to have you on board.'
-        );
-
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        setState(() {
-          errorMessage = 'Registration failed, please try again.';
-        });
-      }
-    } on AuthException catch (e) {
-      setState(() {
-        errorMessage = 'Error: ${e.message}';
-      });
-      print("AuthException: ${e.message}");
-    } catch (e) {
+    }catch (e) {
       setState(() {
         errorMessage = 'An unexpected error occurred: ${e.toString()}';
       });
-      print("Unexpected error: ${e.toString()}");
     }
   }
 

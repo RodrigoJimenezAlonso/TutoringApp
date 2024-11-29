@@ -1,5 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class EditGroupScreen extends StatefulWidget{
   final String groupId;
@@ -23,24 +23,44 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
 
   Future<void> _loadGroupData()async{
     try {
-      final response = await Supabase.instance.client
-          .from('groups')
-          .select('groupDescription')
-          .eq('id', widget.groupId)
-          .maybeSingle();
-      if(response != null){
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'SELECT groupDescription FROM groups WHERE id = ?',
+          [widget.groupId]
+      );
+      if(result.isNotEmpty){
         setState(() {
-          _descriptionController.text = response['groupDescription'] ?? '';
+          _descriptionController.text = result.first['groupDescription'] ?? '' ;
         });
       }else{
-        throw Exception('Group not found');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('GRoup not found'))
+        );
       }
+
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load group data: $e'))
+          SnackBar(content: Text('Failed to load group data: $e'))
       );
     }
   }
+
+  Future<void> _updateGroupDescription()async{
+    try{
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+        'UPDATE groups SET groupDescription = ? WHERE id = ?',
+        [_descriptionController.text, widget.groupId],
+      );
+
+      Navigator.pop(context);
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load group description: $e'))
+      );
+    }
+  }
+
   @override
 
   Widget build(BuildContext context){
@@ -67,25 +87,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
               ),
             ),
             ElevatedButton(
-                onPressed: ()async{
-                  try{
-                    final response = await Supabase.instance.client.from('groups')
-                        .update({
-                      'groupDescription': _descriptionController.text
-                    })
-                    .eq('id', widget.groupId);
-                    if(response.error == null){
-                      Navigator.pop(context);
-                    }else{
-                      throw response.error!;
-                    }
-                  }catch(e){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to update group: $e')),
-                    );
-                  }
-
-                },
+              onPressed: _updateGroupDescription,
               child: Text('save'),
             )
           ],

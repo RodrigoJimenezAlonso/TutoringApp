@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../auth/register_page.dart';
 import '../events.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:bcrypt/bcrypt.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -23,31 +24,35 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> signIn() async {
     try {
-      final res = await Supabase.instance.client.auth.signInWithPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT id, password_hash FROM users WHERE email = ?',
+        [emailController.text.trim()]
       );
 
-      if (res.user != null) {
-        print('User signed in with ID: ${res.user!.id}'); // Imprime el user_id para confirmar
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => EventsController()),
-        );
-      } else {
+      if(result.isEmpty){
         setState(() {
-          errorMessage = 'Incorrect email or password. Please try again.';
+          errorMessage = 'Invalid email or password';
         });
+        return;
       }
-    } on AuthException catch (authError) {
-      setState(() {
-        errorMessage = 'Login failed: ${authError.message}';
-      });
-      print('AuthException: ${authError.message}');
-    } catch (e) {
+      final user = result.first;
+      final passwordHash = user['password_hash'];
+      if(!BCrypt.checkpw(passwordController.text.trim(), passwordHash)){
+        setState(() {
+          errorMessage = 'Invalid email or password';
+        });
+        return;
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context)=> EventsController()
+        ),
+      );
+    }catch (e) {
       setState(() {
         errorMessage = 'An unexpected error occurred: ${e.toString()}';
       });
-      print('Error general: ${e.toString()}');
     }
   }
 

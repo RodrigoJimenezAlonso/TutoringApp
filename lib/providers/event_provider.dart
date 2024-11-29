@@ -1,49 +1,46 @@
 import 'package:flutter/material.dart';
 import '../models/event.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class EventProvider extends ChangeNotifier {
   List<Event> _events = [];
+
   List<Event> get events => _events;
 
   // Cargar eventos filtrados por el user_id del usuario autenticado
   Future<void> loadEvents() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      print('User not authenticated');
-      return;
-    }
+    try {
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT * FROM events',
+      );
 
-    final response = await Supabase.instance.client
-        .from('events')
-        .select()
-        .eq('user_id', user.id); // Filtra eventos por user_id del usuario autenticado
+      _events = result.map((row) => Event.fromMap(row.fields)).toList();
 
-    if (response != null && response is List) {
-      _events = response.map((eventMap) => Event.fromMap(eventMap)).toList();
       notifyListeners();
-    } else {
-      print("Error al cargar eventos o respuesta inesperada.");
+    } catch (e) {
+      print('Error loading events $e');
     }
   }
 
   // Agregar un nuevo evento con el user_id del usuario autenticado
   Future<void> addEvent(Event event) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      print('User not authenticated');
-      return;
-    }
-
-    final response = await Supabase.instance.client
-        .from('events')
-        .insert(event.toMap());
-
-    if (response.error == null) {
+    try {
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+          'INSERT INTO events(id, title, description, start_time, end_time) VALUES(?,?,?,?,?)',
+          [
+            event.id,
+            event.title,
+            event.description,
+            event.startTime.toIso8601String(),
+            event.endTime.toIso8601String(),
+          ]
+      );
       _events.add(event);
       notifyListeners();
-    } else {
-      print(response.error!.message);
+    } catch (e) {
+      print('Error adding events $e');
     }
   }
 }

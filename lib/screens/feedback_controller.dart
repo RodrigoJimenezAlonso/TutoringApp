@@ -1,41 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:proyecto_rr_principal/mysql.dart';
 class FeedbackController{
   static Future<void> submitFeedback(String teacherId, String studentId, double rating, String comment) async{
     try{
-      final feedback = {
-        'teacherId': teacherId,
-        'studentId': studentId,
-        'rating': rating,
-        'comment': comment,
-        'timeStamp':DateTime.now().toIso8601String(),
-      };
-      final response = await Supabase.instance.client
-          .from('feedback')
-          .upsert(feedback);
-      if(response.error != null){
-        throw response.error!;
-      }
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+        '''
+        INSERT INTO feedback (teacherId, studentId, rating, comment, timeStamp)
+        VALUES(?,?,?,?,?)
+        ''',
+        [
+          teacherId,
+          studentId,
+          rating,
+          comment,
+          DateTime.now().toIso8601String(),
+        ]
+      );
     }catch(e){
-      print('Error saving the feedback: $e');
+      print('Error submiting the feedback: $e');
+      rethrow;
     }
   }
 
   static Future<double> getAverageRating(String teacherId) async{
     try{
-      final response = await Supabase.instance.client
-          .from('feedback')
-          .select('rating')
-          .eq('teacherId', teacherId);
-
-      final List<dynamic> ratings = response ?? [];
-      if(ratings.isEmpty){
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          '''
+          SELECT AVG(rating) AS averageRating
+          FROM feedback WHERE teacherId = ?
+          ''',
+          [teacherId],
+      );
+      if(result.isNotEmpty && result.first['averageRating'] != null){
+        return result.first['averageRating'] as double;
+      }else{
         return 0.0;
       }
-      double totalRating = ratings.fold(0, (sum,rating)=> sum + (rating['rating'] ?? 0.0));
-      return totalRating/ratings.length;
     }catch(e){
       print('error fetching feedback: $e');
       return 0.0;

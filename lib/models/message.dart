@@ -1,3 +1,5 @@
+import 'package:proyecto_rr_principal/mysql.dart';
+
 class Message{
   final String id;
   final String senderId;
@@ -15,6 +17,18 @@ class Message{
     this.isRead = false
   });
 
+
+  factory Message.fromMap(Map<String, dynamic> map){
+    return Message(
+      id: map['id'],
+      senderId: map['senderId'],
+      senderName: map['senderName'],
+      text: map['text'],
+      timestamp: DateTime.parse(map['timestamp']),
+      isRead: map['isRead'] == 1,
+    );
+  }
+
   Map<String, dynamic> toMap(){
     return {
       'senderId':senderId,
@@ -25,15 +39,29 @@ class Message{
     };
   }
 
-  static Message fromMap(String id, Map<String, dynamic> map ){
-    return Message(
-        id: id,
-        senderId: map['senderId'],
-        senderName: map['senderName'],
-        text: map['text'],
-        timestamp: DateTime.parse(map['timestamp']),
-        isRead: map['isRead'] ?? false,
+  static Future<List<Message>> fetchMessage() async{
+    final conn = await MySQLHelper.connect();
+    final result = await conn.query(
+        'SELECT * FROM messages',
+    );
+    return result.map(
+        (row){
+          return Message.fromMap(row.fields);
+        }
+    ).toList();
+  }
+  static Future<void> addMessage(Message message) async{
+    final conn = await MySQLHelper.connect();
+    await conn.query(
+      'INSERT INTO messages(id, sender_id, sender_name, text, time_stamp, is_read) VALUES(?,?,?,?,?,?)',
+      [
+        message.id,
+        message.senderId,
+        message.senderName,
+        message.text,
+        message.timestamp.toIso8601String(),
+        message.isRead ? 1 : 0
+      ]
     );
   }
-
 }
