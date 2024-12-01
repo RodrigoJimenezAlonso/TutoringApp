@@ -1,9 +1,8 @@
 import 'dart:math';
-
 import 'package:proyecto_rr_principal/mysql.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
+
 
 class TeacherList extends StatefulWidget {
   const TeacherList({Key? key}) : super(key: key);
@@ -21,26 +20,25 @@ class _TeacherListState extends State<TeacherList> {
       final result = await conn.query(
         'SELECT id,name FROM teachers'
       );
-      final teachers = await Future.wait(result.map((row) async{
-        final teacherId = row['id'];
-        final name = row['name'];
-        
+      final teachers = <Map<String, dynamic>> [];
+      for(var row in result){
+        final teacherId  = row['id'];
+        final name  = row['name'];
         final averageRating = await _getAverageRating(teacherId);
         if(averageRating >= _minRating){
-          return{
+          teachers.add
+          ({
             'teacherId': teacherId,
             'name': name,
             'averageRating': averageRating,
-          };
+          });
         }
-        return null;
-      }));
+      }
       await conn.close();
-      return teachers.whereType<Map<String, dynamic>>().toList();
-      
+      return teachers;
       }catch(e){
-      print('Error fetching teachers: $e');
-      return [];
+        print('Error fetching teachers: $e');
+        return [];
     }
   }
 

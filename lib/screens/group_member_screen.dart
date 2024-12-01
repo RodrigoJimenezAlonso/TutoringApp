@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
+
 
 class GroupMemberScreen extends StatelessWidget{
 
@@ -9,29 +10,42 @@ class GroupMemberScreen extends StatelessWidget{
   });
 
   void removeUserFromGroup(BuildContext context, String groupId, String userId)async{
+    final messager = ScaffoldMessenger.of(context);
     try{
-      final res = await Supabase.instance.client
-          .from('groups')
-          .update({
-            'members': Supabase.instance.client.rpc('remove_member_from_group',
-              params: {
-                'group_id': groupId,
-                'user_id': userId
-              })
-          })
-          .eq('id', groupId);
-      if(res.error != null){
-        throw res.error!;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('user removed successfully'))
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+        'DELETE FROM group_members WHERE groupID = ? AND id = ?',
+        [groupId, userId]
       );
+      await conn.close();
+      messager.showSnackBar(
+        const SnackBar(
+            content: Text('User has been eliminated successfully')
+        )
+      );
+
     }catch(e) {
-      print('error removing user from group: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('failed removing user: $e'))
+      messager.showSnackBar(
+          const SnackBar(
+              content: Text('User has not been eliminated')
+          )
       );
     }
+  }
+
+  Future<List<Map<String, dynamic>>> _getGroupMember()async{
+    final conn = await MySQLHelper.connect();
+    final result = await conn.query(
+      'SELECT user_id FROM group_members WHERE group_id = ?',
+      [groupId],
+    );
+
+    await conn.close();
+
+    return result.map((row)=> {
+      'userId': row['user_id'],
+    }).toList();
+
   }
 
   @override
@@ -43,10 +57,7 @@ class GroupMemberScreen extends StatelessWidget{
         ),
       ),
       body: FutureBuilder(
-        future: Supabase.instance.client
-          .from('groups')
-          .select()
-          .eq('id', groupId),
+        future: _getGroupMember(),
         builder: (context, snapshot){
           if(snapshot.connectionState == ConnectionState.waiting){
             return Center(child: CircularProgressIndicator());

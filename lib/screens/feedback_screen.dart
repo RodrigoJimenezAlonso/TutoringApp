@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FeedbackScreen extends StatefulWidget{
   final String teacherID;

@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import '../models/schedule.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScheduleForm extends StatefulWidget{
   final String professorId;
@@ -18,19 +17,20 @@ class _ScheduleFormState extends State<ScheduleForm>{
   DateTime? _selectedDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
-
+  bool _isSaving = false;
   Future<void> _saveSchedule() async{
     if(_formKey.currentState?.validate()?? false){
-      final schedule = Schedule(
-        id: '',
-        professorId: widget.professorId,
-        date: _selectedDate!,
-        startTime: _startTime!,
-        endTime: _endTime!,
-      );
+      setState(() => _isSaving = true);
       try{
         final conn = await MySQLHelper.connect();
-        final result = await conn.query(
+        final schedule = Schedule(
+          id: '',
+          professorId: widget.professorId,
+          date: _selectedDate!,
+          startTime: _startTime!,
+          endTime: _endTime!,
+        );
+        await conn.query(
           'INSERT INTO schedules(professorId, date, startTime, endTime) VALUES (?,?,?,?)',
           [
             schedule.professorId,
@@ -40,13 +40,18 @@ class _ScheduleFormState extends State<ScheduleForm>{
           ],
         );
         await conn.close();
-
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Schedule is saved successfully'),
+        )
+        );
         Navigator.pop(context);
       }catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Error on saving Schedule: $e'),
           )
         );
+      } finally{
+        setState(()=> _isSaving = false);
       }
 
     }

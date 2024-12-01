@@ -47,16 +47,26 @@ class FeedbackController{
 
   static Future<List<Map<String, dynamic>>> getTeacherComments(String teacherId) async{
     try{
-      final response = await Supabase.instance.client
-          .from('feedback')
-          .select('*')
-          .eq('teacherId', teacherId)
-          .order('timeStamp' , ascending: false);
-      return List<Map<String, dynamic>>.from(response ?? []);
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        '''
+          SELECT id , teacherId, studentId, rating, comment, timeStamp
+          FROM feedback WHERE teacherId = ? 
+          ORDER BY timeStamp DESC
+          ''',
+        [teacherId],
+      );
+      return result.map((row)=> {
+        'id': row['id'],
+        'teacherId': row['teacherId'],
+        'studentId': row['studentId'],
+        'rating': row['rating'],
+        'comment': row['comment'],
+        'timeStamp': row['timeStamp'],
+      }).toList();
     }catch(e){
       print('error fetching teacher comments: $e');
       return [];
     }
-
   }
 }
