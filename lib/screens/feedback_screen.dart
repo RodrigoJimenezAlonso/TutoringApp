@@ -14,7 +14,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>{
   final TextEditingController _commentController = TextEditingController();
   bool _isSubmitted = false;
 
-  void _submitFeedback() async{
+  Future<void> _submitFeedback() async{
     if(_isSubmitted)return;
 
     if(_rating == 0){
@@ -26,16 +26,18 @@ class _FeedbackScreenState extends State<FeedbackScreen>{
     }
     setState(()=> _isSubmitted = true);
     try{
+      final studentID  = '123456';
       await FeedbackController.submitFeedback(
           widget.teacherID,
-          "123456",
+          studentID,
           //studentId, reemplazar con el id del alumno actual
           _rating,
-          _commentController.text,
+          _commentController.text.trim(),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Thank you for your comment!')),
       );
+      _commentController.clear();
       Navigator.pop(context);
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,6 +88,7 @@ class _FeedbackScreenState extends State<FeedbackScreen>{
                 labelText: 'comment (optional)',
               ),
               maxLines: 3,
+              maxLength: 300,
               validator: (value){
                 if(value != null && value.length > 300){
                   return 'Comment is too long(MAX 300 characters)';

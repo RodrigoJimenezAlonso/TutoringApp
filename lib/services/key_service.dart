@@ -1,22 +1,51 @@
+import 'dart:convert';
+
 import 'package:cryptography/cryptography.dart';
 import '../services/flutter_storage.dart';
 
 class KeyService{
+  final AesGcm _algorithm = AesGcm.with256bits();
+
   Future<SecretKey> generateKey() async{
-    final algorithm = AesGcm.with256bits();
-    final key = await algorithm.newSecretKey();
-    return key;
+    try{
+      return await _algorithm.newSecretKey();
+    }catch(e){
+      print('Error generating secret KEY: $e');
+      rethrow;
+    }
   }
+
   Future<List<int>> getKeyBytes(SecretKey key)async{
-    return await key.extractBytes();
+    try{
+      return await key.extractBytes();
+    }catch(e){
+      print('Error generating getting key bytes: $e');
+      rethrow;
+    }
   }
+
+  String encodeKey(List<int> keyBytes){
+    return base64Encode(keyBytes);
+  }
+
+  List<int> decodeKey(String encodedKey){
+    return base64Decode(encodedKey);
+  }
+
 }
+
 Future<void> main() async{
   final keyService = KeyService();
-  final secretKey = await keyService.generateKey();
-  final keyBytes = await keyService.getKeyBytes(secretKey);
-  print('key bytes of the key: $keyBytes');
+  try{
+    final secretKey = await keyService.generateKey();
+    final keyBytes = await keyService.getKeyBytes(secretKey);
+    final encodedKey = keyService.encodeKey(keyBytes);
+    await secureStorage.writeKey('user_key', encodedKey);
+    print('Stored key on base 64: $encodedKey');
 
-  await secureStorage.writeKey('user_key', keyBytes.join(','));
+  }catch(e){
+    print('Error on generating the key Service: $e');
+  }
+
 
 }

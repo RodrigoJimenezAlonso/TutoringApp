@@ -2,6 +2,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import '../cryptography/encryption_service.dart';
 import '../services/key_service.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class ReceiveMessageWidget extends StatefulWidget{
   @override
@@ -9,42 +10,45 @@ class ReceiveMessageWidget extends StatefulWidget{
 }
 
 class _ReceiveMessageWidgetState extends State<ReceiveMessageWidget>{
-  late SecretKey _recipientKey;
+
   String _decryptedMessage = '';
-  bool _isKeyInitialized = false;
-  @override
-  void initState(){
-    super.initState();
-    _initializedRecipientKey();
-  }
 
-  Future<void> _initializedRecipientKey()async{
-    final keyService = KeyService();
-    _recipientKey = await keyService.generateKey();
-    setState(() {
-      _isKeyInitialized = true;
-    });
-  }
-
-  Future<void> _receiveMessage(List<int> encryptedMessage) async{
-    if(!_isKeyInitialized){
-      print('My recipient key has not being initialized');
-      return;
-    }
+  Future<void> _receiveMessage(String messageId) async{
     try{
+
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT encryptedMessage FROM messages WHERE id = ?',
+        [
+          messageId
+        ],
+      );
+      if(result.isEmpty) {
+        print('No meesage with the id found $messageId');
+        return;
+      }
+      final encryptedData = result.first['encryptedMessage'] as String;
+      final encryptedMessage = encryptedData.split(',').map(int.parse).toList();
       final tag = encryptedMessage.sublist(encryptedMessage.length - 16);
-      final nonce = encryptedMessage.sublist(encryptedMessage.length - 32, encryptedMessage.length - 16);
-      final cipherText = encryptedMessage.sublist(0, encryptedMessage.length -32);
+      final nonce = encryptedMessage.sublist(
+          encryptedMessage.length - 32,
+          encryptedMessage.length - 16
+      );
+      final cipherText = encryptedMessage.sublist(
+          0,
+          encryptedMessage.length -32
+      );
       final secretBox = SecretBox(
         cipherText,
         nonce: nonce,
         mac: Mac(tag),
       );
-      final encryptionService = EncryptionService(_recipientKey);
+      final encryptionService = EncryptionService();
       final decryptedMessage = await encryptionService.decrypt(secretBox);
       setState(() {
         _decryptedMessage = decryptedMessage;
       });
+      await conn.close();
     }catch(e){
       print('Error encrypting message: $e');
     }

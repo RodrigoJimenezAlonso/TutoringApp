@@ -1,7 +1,7 @@
 import '../models/schedule.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class AvailableSchedule extends StatelessWidget {
   final String professorId;
@@ -12,21 +12,27 @@ class AvailableSchedule extends StatelessWidget {
 
   Future<void> _bookSchedule(Schedule schedule, BuildContext context) async {
     try {
-      final response = await Supabase.instance.client
-          .from('schedules')
-          .update({'isBooked': true})
-          .eq('id', schedule.id)
-          .maybeSingle();
-
-      if (response == null) {
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'UPDATE schedules SET isBooked = ? WHERE id = ?',
+          [
+            true, schedule.id
+          ],
+      );
+      if(result.affectedRows == 0){
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Booked unsuccessfully')),
+          const SnackBar(
+              content: Text('Unsuccessfully booked')
+          )
         );
-      } else {
+      }else{
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Booked successfully')),
+            const SnackBar(
+                content: Text('Successfully booked')
+            )
         );
       }
+      await conn.close();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking unsuccessful: $e')),
@@ -86,12 +92,16 @@ class AvailableSchedule extends StatelessWidget {
   }
   Future<List<Map<String, dynamic>>> _fetchSchedules()async{
     try{
-      final response = await Supabase.instance.client
-          .from('schedules')
-          .select('*')
-          .eq('professorId', professorId)
-          .eq('isBooked', false);
-      return response as List<Map<String, dynamic>>;
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'SELECT * FROM schedules WHERE professorId = ? AND isBooked = ?',
+          [
+            professorId, false
+          ],
+      );
+      final schedules = result.map((row)=> row.fields).toList();
+      await conn.close();
+      return schedules;
     }catch(e){
       print('error fetching schedules: $e');
       return [];

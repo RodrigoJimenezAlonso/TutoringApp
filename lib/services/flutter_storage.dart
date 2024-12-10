@@ -3,19 +3,39 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorage{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   Future<void> writeKey(String key, String value)async{
-    await _storage.write(key: key, value: value);
+    try{
+      await _storage.write(key: key, value: value);
+    }catch(e){
+      print('error writing key $key, $e');
+      rethrow;
+    }
   }
   Future<String?> readKey(String key)async{
-    return await _storage.read(key: key);
+    try{
+      return await _storage.read(key: key);
+    }catch(e){
+      print('error reading key $key, $e');
+      return null;
+    }
   }
   Future<void> deleteKey(String key)async{
-    await _storage.delete(key: key);
+    try{
+      await _storage.delete(key: key);
+    }catch(e){
+      print('error deleting key $key, $e');
+      rethrow;
+    }
   }
 }
+
 final secureStorage = SecureStorage();
 Future<void> main()async{
   const key = 'user_key';
-  await secureStorage.writeKey(key, 'some_secure_value');
-  final keyBytes = await secureStorage.readKey(key);
-  print('Storaged value: $keyBytes');
+  try{
+    await secureStorage.writeKey(key, 'some_secure_value');
+    final keyBytes = await secureStorage.readKey(key);
+    print('Storaged value: $keyBytes');
+  }catch(e){
+    print('error interacting with the Secure Storage: $e');
+  }
 }

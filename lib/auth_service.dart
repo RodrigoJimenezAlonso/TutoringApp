@@ -1,26 +1,35 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'mysql.dart';
 
 class AuthService{
-  final SupabaseClient _client = Supabase.instance.client;
 
-  Future<User?> signIn(String email, String password) async{
+  Future<Map<String, dynamic>?> login(String email, String password) async{
     try{
-      final response = await _client.auth.signInWithPassword(
-          email: email,
-          password: password
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT * FROM users WHERE email = ? AND password = ?'
+        [
+          email,
+          password,
+        ],
       );
-      if(response.user != null){
-        return response.user;
-      }else{
-        print('error signing in');
+      if(result.isEmpty){
+        await conn.close();
         return null;
       }
-    }catch(e){
-      print('error: $e');
+      final user = result.first;
+      await conn.close();
+      return {
+        'id': user['id'],
+        'email': user['email'],
+      };
+    }
+    catch(e){
+      print('Error LOGIN: $e');
       return null;
     }
   }
-  Future<void> signOut()async{
+
+  /*Future<void> signOut()async{
     try{
       await _client.auth.signOut();
       print('user singed out');
@@ -49,5 +58,5 @@ class AuthService{
       print('error: $e');
       return null;
     }
-  }
+  }*/
 }

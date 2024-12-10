@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter/material.dart';
 import 'feedback_controller.dart';
 import '../screens/teacher_feedback_history.dart';
@@ -10,6 +10,26 @@ class TeacherProfile extends StatelessWidget{
     Key? key, required this.teacherId
   }): super(key: key);
 
+  Future<double> _getAverageRating(String teacherId) async{
+    try{
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'SELECT AVG(rating) AS averageRating FROM feedbacks WHERE teacherId = ?',
+          [
+            teacherId
+          ],
+      );
+      final row = result.first;
+      final averageRating = row["averageRating"] ?? 0.0;
+      await conn.close();
+      return averageRating;
+    }
+    catch(e){
+      print('error fetching Average Rating: $e');
+      return 0.0;
+    }
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -17,7 +37,7 @@ class TeacherProfile extends StatelessWidget{
         title: Text('Teacher Profile'),
       ),
       body: FutureBuilder<double>(
-        future: FeedbackController.getAverageRating(teacherId),
+        future: _getAverageRating(teacherId),
         builder: (context, snapshot){
           if(!snapshot.hasData){
             return Center(child: CircularProgressIndicator());

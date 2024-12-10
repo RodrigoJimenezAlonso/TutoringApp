@@ -3,6 +3,7 @@ import 'package:proyecto_rr_principal/mysql.dart';
 class Message{
   final String id;
   final String senderId;
+  final String recipientId;
   final String senderName;
   final String text;
   final DateTime timestamp;
@@ -11,6 +12,7 @@ class Message{
   Message({
     required this.id,
     required this.senderId,
+    required this.recipientId,
     required this.senderName,
     required this.text,
     required this.timestamp,
@@ -22,6 +24,7 @@ class Message{
     return Message(
       id: map['id'],
       senderId: map['senderId'],
+      recipientId: map['recipientId'],
       senderName: map['senderName'],
       text: map['text'],
       timestamp: DateTime.parse(map['timestamp']),
@@ -32,6 +35,7 @@ class Message{
   Map<String, dynamic> toMap(){
     return {
       'senderId':senderId,
+      'recipientId':recipientId,
       'senderName':senderName,
       'text':text,
       'timestamp':timestamp.toIso8601String(),
@@ -53,10 +57,11 @@ class Message{
   static Future<void> addMessage(Message message) async{
     final conn = await MySQLHelper.connect();
     await conn.query(
-      'INSERT INTO messages(id, sender_id, sender_name, text, time_stamp, is_read) VALUES(?,?,?,?,?,?)',
+      'INSERT INTO messages(id, sender_id, recipient_id, sender_name, text, time_stamp, is_read) VALUES(?,?,?,?,?,?)',
       [
         message.id,
         message.senderId,
+        message.recipientId,
         message.senderName,
         message.text,
         message.timestamp.toIso8601String(),

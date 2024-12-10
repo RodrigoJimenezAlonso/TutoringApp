@@ -2,6 +2,8 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import '../cryptography/encryption_service.dart';
 import '../services/key_service.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
+import 'package:proyecto_rr_principal/models/message.dart';
 
 class SendMessageWidget extends StatefulWidget{
   @override
@@ -10,41 +12,28 @@ class SendMessageWidget extends StatefulWidget{
 
 class _SendMessageWidgetState extends State<SendMessageWidget>{
   final TextEditingController _messageController = TextEditingController();
-  late SecretKey _recipientKey;
-  bool _isKeyInitialized = false;
 
-  void initState(){
-    super.initState();
-    _initializedRecipientKey();
-  }
-
-  Future<void> _initializedRecipientKey()async{
-    final keyService = KeyService();
-    _recipientKey = await keyService.generateKey();
-    setState(() {
-      _isKeyInitialized = true;
-    });
-  }
-  Future<void> _sendMessage() async{
-    if(!_isKeyInitialized){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Encryptions has not been initialized')));
-      return;
-    }
+  Future<void> _sendMessage(String recipientId) async{
     final message = _messageController.text;
-
     if(message.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a message')),
-      );
+          const SnackBar(content: Text('Please insert a message')));
       return;
     }
-    try{
-      final encryptionService = EncryptionService(_recipientKey);
+    try {
+      final encryptionService = EncryptionService();
       final encryptedMessage = await encryptionService.encrypt(message);
-
-      print('Encrypted message sent: $encryptedMessage');
-      _messageController.clear();
+        final conn = await MySQLHelper.connect();
+        await conn.query(
+          'INSERT INTO messages(recipientId, encryptedMessage) VALUES(?,?)',
+          [
+            recipientId,
+            encryptedMessage.join(','),
+          ],
+        );
+        await conn.close();
+        print('Encrypted message was sent: $encryptedMessage');
+        _messageController.clear();
     }catch(e){
       print('Error encrypting message: $e');
     }
@@ -63,7 +52,7 @@ class _SendMessageWidgetState extends State<SendMessageWidget>{
             ),
           ),
           ElevatedButton(
-            onPressed: _sendMessage,
+            onPressed: ()=> _sendMessage('recipient_id'),
             child: Text(
                 'send'
             ),
