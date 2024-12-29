@@ -13,7 +13,7 @@ class TeacherFeedbackHistory extends StatelessWidget{
     try{
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
-          'SELECT rating, comment, timeStamp FROM feedbacks WHERE teacherId = ? ',
+          'SELECT rating, comment, timeStamp FROM feedback WHERE teacherId = ? ',
           [teacherId]
       );
       await conn.close();

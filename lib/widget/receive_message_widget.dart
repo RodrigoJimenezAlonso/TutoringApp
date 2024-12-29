@@ -24,7 +24,7 @@ class _ReceiveMessageWidgetState extends State<ReceiveMessageWidget>{
         ],
       );
       if(result.isEmpty) {
-        print('No meesage with the id found $messageId');
+        print('No message with the id found $messageId');
         return;
       }
       final encryptedData = result.first['encryptedMessage'] as String;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'datePicker.dart';
 import 'data.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 
 class EvtController extends StatefulWidget {
   @override
@@ -8,7 +9,6 @@ class EvtController extends StatefulWidget {
 }
 
 class _EvtControllerState extends State<EvtController> {
-  final Data _data = Data();
   List<Map<String, dynamic>> _events = [];
 
   @override
@@ -18,20 +18,30 @@ class _EvtControllerState extends State<EvtController> {
   }
 
   Future<void> _fetchEvents() async {
-    try {
-      final events = await _data.getAllEvents();
-      setState(() {
-        _events = events;
-      });
-    } catch (e) {
-      print('Error fetching events: $e');
-    }
+      try{
+        final conn = await MySQLHelper.connect();
+        final result = await conn.query(
+          'SELECT id , title, description, start_time, end_time, FROM events'
+        );
+        final events = result.map(
+            (row)=> {
+              'id': row['id'],
+              'title': row['title'],
+              'description': row['description'],
+              'startTime': row['start_time'],
+              'endTime': row['end_time'],
+            }
+        ).toList();
+        await conn.close();
+      }
+      catch(e){
+        print('Error eventDialog: $e');
+      }
   }
 
-  Future<Map<String, dynamic>?> _showEventDialog(BuildContext context) async {
+  Future<Map<String, dynamic>?> _addEventDialog(BuildContext context, DateTime selectedDate) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    DateTime? selectedDate;
 
     return showDialog<Map<String, dynamic>>(
       context: context,
@@ -69,18 +79,33 @@ class _EvtControllerState extends State<EvtController> {
             ),
             ElevatedButton(
               child: Text('Add'),
-              onPressed: () {
+              onPressed: () async {
                 if (titleController.text.isNotEmpty &&
                     descriptionController.text.isNotEmpty &&
                     selectedDate != null) {
                   final newEvent = {
-                    "id": DateTime.now().millisecondsSinceEpoch.toString(),
                     "title": titleController.text,
                     "description": descriptionController.text,
                     "startTime": selectedDate!.toIso8601String(),
-                    "endTime": DateTime.now().toIso8601String(),
+                    "endTime": selectedDate!.add(Duration(hours: 1)).toIso8601String(),
                   };
-                  Navigator.pop(context, newEvent);
+                  try{
+                    final conn = await MySQLHelper.connect();
+                    await conn.query(
+                      'INSERT INTO events (title, description, start_time, end_time) VALUES(?,?,?,?)',
+                      [
+                        newEvent['title'],
+                        newEvent['description'],
+                        newEvent['startTime'],
+                        newEvent['endTime'],
+                      ],
+                    );
+                    await conn.close();
+                    Navigator.pop(context, newEvent);
+                  }
+                  catch(e){
+                    print('Error adding Event: $e');
+                  }
                 }
               },
             ),
@@ -92,24 +117,26 @@ class _EvtControllerState extends State<EvtController> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              final newEvent = await _showEventDialog(context);
-              if (newEvent != null) {
-                await _data.addEvent(newEvent);
-                _fetchEvents(); // Refresh the events list after adding a new event
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Event "${newEvent['title']}" added')),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Events: '),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () async {
+                final selectedDate = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DatePicker(),
+                    )
                 );
-              }
-            },
-            child: Text('Create an Event'),
-          ),
-          Expanded(
-            child: ListView.builder(
+                if(selectedDate != null){
+                  _addEventDialog(context, selectedDate);
+                }
+              },
+          ),]
+      ),
+            body: ListView.builder(
               itemCount: _events.length,
               itemBuilder: (context, index) {
                 final event = _events[index];
@@ -119,9 +146,6 @@ class _EvtControllerState extends State<EvtController> {
                 );
               },
             ),
-          ),
-        ],
-      ),
     );
   }
 }

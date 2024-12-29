@@ -6,10 +6,10 @@ class AuthService{
     try{
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
-        'SELECT * FROM users WHERE email = ? AND password = ?'
+        'SELECT * FROM users WHERE email = ? AND password = ?',
         [
           email,
-          password,
+          password
         ],
       );
       if(result.isEmpty){

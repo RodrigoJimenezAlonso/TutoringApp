@@ -7,7 +7,7 @@ class Event {
   final String description;
   final DateTime startTime;
   final DateTime endTime;
-  //final String userId; // Campo para el user_id
+  final String userId; // Campo para el user_id
 
   Event({
     required this.id,
@@ -15,7 +15,7 @@ class Event {
     required this.description,
     required this.startTime,
     required this.endTime,
-    //required this.userId, // Inicializa el user_id
+    required this.userId, // Inicializa el user_id
   });
 
   factory Event.fromMap(Map<String, dynamic> map){
@@ -25,7 +25,7 @@ class Event {
         description: map['description'],
         startTime: DateTime.parse(map['start_time']),
         endTime: DateTime.parse(map['end_time']),
-        //userId: userId
+        userId: map['user_id']
     );
   }
 
@@ -37,7 +37,7 @@ class Event {
       'description': description,
       'start_time': startTime.toIso8601String(),
       'end_time': endTime.toIso8601String(),
-      //'user_id': userId, // Incluye el user_id en el Map
+      'user_id': userId, // Incluye el user_id en el Map
     };
   }
 
@@ -54,13 +54,14 @@ class Event {
   static Future<void> addEvents(Event event) async{
     final conn = await MySQLHelper.connect();
     await conn.query(
-      'INSERT INTO events(id, title, description, start_time, end_time) VALUES(?,?,?,?,?)',
+      'INSERT INTO events(id, title, description, start_time, end_time, user_id) VALUES(?,?,?,?,?,?)',
       [
         event.id,
         event.title,
         event.description,
         event.startTime.toIso8601String(),
         event.endTime.toIso8601String(),
+        event.userId
       ]
     );
   }

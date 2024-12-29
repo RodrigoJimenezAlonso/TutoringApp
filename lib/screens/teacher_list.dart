@@ -45,7 +45,7 @@ class _TeacherListState extends State<TeacherList> {
   Future<double> _getAverageRating(int teacherId) async{
     final conn = await MySQLHelper.connect();
     final results  = await conn.query(
-      'SELECT AVG(rating) AS averageRating FROM feedbacks WHERE teacherId = ?',
+      'SELECT AVG(rating) AS averageRating FROM feedback WHERE teacherId = ?',
       [teacherId]
     );
     await conn.close();

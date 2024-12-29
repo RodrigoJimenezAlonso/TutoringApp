@@ -21,14 +21,23 @@ class _SendMessageWidgetState extends State<SendMessageWidget>{
       return;
     }
     try {
+      final keyService = KeyService();
       final encryptionService = EncryptionService();
       final encryptedMessage = await encryptionService.encrypt(message);
+      final cipherText  = encryptedMessage.cipherText;
+      final nonce = encryptedMessage.nonce;
+      final mac = encryptedMessage.mac.bytes;
+      final serializedMessage = [
+        ...cipherText,
+        ...mac,
+        ...nonce
+      ].join(',');
         final conn = await MySQLHelper.connect();
         await conn.query(
           'INSERT INTO messages(recipientId, encryptedMessage) VALUES(?,?)',
           [
             recipientId,
-            encryptedMessage.join(','),
+            serializedMessage,
           ],
         );
         await conn.close();

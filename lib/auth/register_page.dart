@@ -14,6 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   String errorMessage = '';
+  String selectedRole = 'student';
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -31,13 +32,15 @@ class _RegisterPageState extends State<RegisterPage> {
       });
       return;
     }
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
     try {
       final conn = await MySQLHelper.connect();
-      final passwordHash = BCrypt.hashpw(passwordController.text.trim(), BCrypt.gensalt());
+      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
       await conn.query(
-        'INSERT INTO users(email, password_hash) VALUES(?,?)',
-        [emailController.text.trim(), passwordHash],
+        'INSERT INTO users(email, password_hash, role) VALUES(?,?,?)',
+        [email, passwordHash, selectedRole],
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -101,6 +104,28 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               SizedBox(height: 20),
+              DropdownButtonFormField(
+                  value: selectedRole,
+                  decoration: InputDecoration(labelText: 'role'),
+                  items: [
+                    DropdownMenuItem(
+                        value: 'student',
+                        child: Text('Student')
+                    ),
+                    DropdownMenuItem(
+                        value: 'teacher',
+                        child: Text('Teacher')
+                    ),
+                  ],
+                  onChanged: (value){
+                    if(value != null){
+                      setState(() {
+                        selectedRole = value;
+                      });
+                    }
+                  }
+              ),
+              SizedBox(height: 20,),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {

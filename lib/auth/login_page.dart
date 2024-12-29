@@ -3,6 +3,8 @@ import '../auth/register_page.dart';
 import '../events.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
+import 'package:proyecto_rr_principal/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -23,6 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn() async {
+    if(!_formKey.currentState!.validate()) return;
+
     try {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
@@ -44,6 +48,8 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
+      final userId = user['id'];
+      Provider.of<UserProvider>(context, listen: false).setUserId(userId);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context)=> EventsController()

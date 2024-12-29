@@ -1,10 +1,8 @@
-import 'models/event.dart';
 import 'package:flutter/material.dart';
 import 'datePicker.dart';
-import 'providers/event_provider.dart';
+import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:proyecto_rr_principal/providers/user_provider.dart';
 
 class EventsController extends StatefulWidget {
   @override
@@ -12,168 +10,160 @@ class EventsController extends StatefulWidget {
 }
 
 class _EventsControllerState extends State<EventsController> {
-  late List<Event> events;
-  final uuid = Uuid();
+  List<Map<String, dynamic>> events = [];
+
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => Provider.of<EventProvider>(context, listen: false).loadEvents());
+    _fetchEvents();
+  }
+  bool isLoading = true;
+  Future<void> _fetchEvents() async {
+    print('Fetching events...');
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final conn = await MySQLHelper.connect();
+      print('Connected to database.');
+
+      final userId = Provider.of<UserProvider>(context, listen: false).userId;
+      if (userId == null) {
+        throw Exception('User ID is null');
+      }
+
+      final result = await conn.query(
+        'SELECT title, description, start_time, end_time FROM events WHERE user_id = ?',
+        [userId],
+      );
+      print('Raw query result: $result');
+
+      setState(() {
+        events = result.map((row) {
+          final startTime = row['start_time'].toString();
+          final endTime = row['end_time'].toString();
+          return {
+            'title': row['title'] as String,
+            'description': row['description'] as String,
+            'start_time': DateTime.parse(startTime).toIso8601String(),
+            'end_time': DateTime.parse(endTime).toIso8601String(),
+          };
+        }).toList();
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+      print('Finished fetching events.');
+    }
+  }
+
+  Future<void> _addEventDialog(BuildContext context, DateTime selectedDate) async{
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text('Add new event'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'title'
+                  ),
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                      labelText: 'description controller'
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: ()=> Navigator.pop(context),
+                  child: Text('cancel'),
+              ),
+              ElevatedButton(
+                child: Text('add'),
+                onPressed: ()async{
+                  if(titleController.text.isNotEmpty && descriptionController.text.isNotEmpty){
+                    try{
+                      final userId = Provider.of<UserProvider>(context, listen: false).userId;
+                      if(userId == null){
+                        print('Error UserId is null');
+                        return;
+                      }
+                      final conn = await MySQLHelper.connect();
+                      await conn.query(
+                        'INSERT INTO events(title, description, start_time, end_time, user_id) VALUES(?,?,?,?,?)',
+                        [
+                          titleController.text,
+                          descriptionController.text,
+                          selectedDate.toIso8601String(),
+                          selectedDate.add(Duration(hours: 1)).toIso8601String(),
+                          userId,
+                        ],
+                      );
+                      await conn.close();
+                      await _fetchEvents();
+                      Navigator.pop(context);
+                    }
+                    catch(e){
+                      print('Could not add the event: $e');
+                    }
+                  }
+                },
+              ),
+            ],
+          );
+
+        }
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    events = Provider.of<EventProvider>(context).events;
     return Scaffold(
       appBar: AppBar(
         title: Text('Events'),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {
+            onPressed: ()async {
               // Navega al componente DatePicker
-              Navigator.push(
+              final selectedDate = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => DatePicker()),
-              ).then((selectedDate) {
-                if (selectedDate != null) {
-                  _showEventDialog(selectedDate);
-                }
-              });
+              );
+              if (selectedDate != null) {
+                _addEventDialog(context, selectedDate);
+              }
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          final event = events[index];
-          return _buildEventCard(event);
-        },
-      ),
-    );
-  }
-
-  Widget _buildEventCard(Event event) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              event.title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              event.description,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 10),
-            _buildEventTimeRow(Icons.schedule, 'start: ${event.startTime}'),
-            SizedBox(height: 5),
-            _buildEventTimeRow(Icons.schedule, 'end: ${event.endTime}'),
-            SizedBox(height: 10),
-            _buildEventLocationRow('Location not specified'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventTimeRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.grey),
-        SizedBox(width: 5),
-        Text(
-          text,
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEventLocationRow(String location) {
-    return Row(
-      children: [
-        Icon(Icons.location_on, color: Colors.grey),
-        SizedBox(width: 5),
-        Text(
-          location,
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _showEventDialog(DateTime selectedDate) async {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add New Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(labelText: 'Title'),
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-              ),
-            ],
+      body: isLoading
+        ? Center(child: CircularProgressIndicator(),)
+        :  ListView.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return ListTile(
+                title: Text(event['title']),
+                subtitle: Text(event['description']),
+              );
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              child: Text('Add'),
-              onPressed: () {
-                final user = Supabase.instance.client.auth.currentUser;
-
-                // Verifica si el usuario está autenticado
-                if (user == null) {
-                  print('User not authenticated');
-                  Navigator.pop(context);
-                  return;
-                }
-
-                final userId = user.id; // Obtén el user_id del usuario autenticado
-                print('Authenticated user ID: $userId'); // Imprime el user_id para verificación
-
-                final newEvent = Event(
-                  id: uuid.v4(),
-                  title: titleController.text,
-                  description: descriptionController.text,
-                  startTime: selectedDate,
-                  endTime: selectedDate.add(Duration(hours: 1)),
-                  userId: userId, // Asocia el evento con el userId del usuario autenticado
-                );
-
-                Provider.of<EventProvider>(context, listen: false).addEvent(newEvent);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

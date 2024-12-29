@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+//import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/auth/login_page.dart';
-import 'eventos2.dart';
-import 'events.dart';
 import 'providers/event_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:proyecto_rr_principal/mysql.dart';
+import 'providers/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: 'https://apoqmydfyxjevyxvymoz.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwb3FteWRmeXhqZXZ5eHZ5bW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4MTM4MTYsImV4cCI6MjA0NDM4OTgxNn0.Lp9FyHD3x6pKZ2smdR1ycyQSiAMea5NVvtaraZaQlIc',
-  );
-  Stripe.publishableKey = 'pk_test_51Q3h3zP0TUOqrBT5Mu4ludEI8Nd3Wvfhprjx55suOFbbZT87NFIcKKznHqKqfnqhTcK9UotvqcXytQhFM250NcWL00Gz7EE6rE';
+  //Stripe.publishableKey = 'pk_test_51Q3h3zP0TUOqrBT5Mu4ludEI8Nd3Wvfhprjx55suOFbbZT87NFIcKKznHqKqfnqhTcK9UotvqcXytQhFM250NcWL00Gz7EE6rE';
+  try{
+    final conn = await MySQLHelper.connect();
+    print('MySql connected successfully');
+    await conn.close();
+  }
+  catch(e){
+    throw Exception('Could not connect to MYSQL: $e');
+  }
   runApp(const MyApp());
 }
 
@@ -26,8 +28,15 @@ class MyApp extends StatelessWidget {
   @override
   //imporatr en el home el wallet screen
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_)=> EventProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_)=> EventProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_)=> UserProvider(),
+        )
+      ],
       child: MaterialApp(
         title: 'date picker alert',
         theme: ThemeData(primarySwatch: Colors.blue),

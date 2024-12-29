@@ -1,10 +1,21 @@
 import 'dart:convert';
-
 import 'package:cryptography/cryptography.dart';
 import '../services/flutter_storage.dart';
 
 class KeyService{
   final AesGcm _algorithm = AesGcm.with256bits();
+  SecretKey? _cachedKey;
+
+  Future<SecretKey> getKey() async{
+    if(_cachedKey != null){
+      return _cachedKey!;
+    }
+    final algorithm = AesGcm.with256bits();
+    final secretKey = await algorithm.newSecretKey();
+    _cachedKey = secretKey;
+    return secretKey;
+  }
+
 
   Future<SecretKey> generateKey() async{
     try{

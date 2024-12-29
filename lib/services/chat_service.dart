@@ -15,7 +15,7 @@ class ChatService{
       );
       await conn.close();
       return result.map((row){
-        return Message.fromMap(row['id'], row.fields as Map<String, dynamic>);
+        return Message.fromMap(row['id']);
       }).toList();
     }
     catch(e){

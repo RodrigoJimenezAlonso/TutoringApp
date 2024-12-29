@@ -14,7 +14,7 @@ class TeacherProfile extends StatelessWidget{
     try{
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
-          'SELECT AVG(rating) AS averageRating FROM feedbacks WHERE teacherId = ?',
+          'SELECT AVG(rating) AS averageRating FROM feedback WHERE teacherId = ?',
           [
             teacherId
           ],
@@ -57,7 +57,7 @@ class TeacherProfile extends StatelessWidget{
                         ),
                     );
                   },
-                  child: Text('Check feedbacks history'),
+                  child: Text('Check feedback history'),
               )
             ],
           );

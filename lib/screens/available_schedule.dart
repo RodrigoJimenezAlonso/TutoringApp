@@ -66,7 +66,7 @@ class AvailableSchedule extends StatelessWidget {
           }
 
           final schedules = response.map((data) {
-            return Schedule.fromMap(data['id'], data as Map<String, dynamic>);
+            return Schedule.fromMap(data['id']);
           }).toList();
 
           return ListView.builder(

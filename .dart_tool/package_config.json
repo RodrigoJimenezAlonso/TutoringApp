@@ -3,7 +3,7 @@
   "packages": [
     {
       "name": "app_links",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/app_links-6.3.2",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/app_links-6.3.3",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -117,7 +117,7 @@
     },
     {
       "name": "file_picker",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/file_picker-8.1.4",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/file_picker-8.1.7",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -159,9 +159,9 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/flutter_lints-4.0.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/flutter_lints-5.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.5"
     },
     {
       "name": "flutter_local_notifications",
@@ -183,7 +183,7 @@
     },
     {
       "name": "flutter_plugin_android_lifecycle",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.23",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -224,12 +224,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "flutter_stripe",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/flutter_stripe-11.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "flutter_test",
       "rootUri": "file:///Users/rodrigojimenez/Downloads/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -242,12 +236,6 @@
       "languageVersion": "3.2"
     },
     {
-      "name": "freezed_annotation",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/freezed_annotation-2.4.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "functions_client",
       "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/functions_client-2.4.0",
       "packageUri": "lib/",
@@ -255,7 +243,7 @@
     },
     {
       "name": "gotrue",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/gotrue-2.11.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/gotrue-2.11.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -285,7 +273,7 @@
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+18",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -327,21 +315,15 @@
     },
     {
       "name": "intl",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/intl-0.20.1",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.3"
     },
     {
       "name": "js",
       "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/js-0.6.7",
       "packageUri": "lib/",
       "languageVersion": "2.19"
-    },
-    {
-      "name": "json_annotation",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
     },
     {
       "name": "jwt_decode",
@@ -369,9 +351,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/lints-4.0.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/lints-5.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.5"
     },
     {
       "name": "logging",
@@ -399,7 +381,7 @@
     },
     {
       "name": "mime",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/mime-1.0.6",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/mime-2.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -429,15 +411,15 @@
     },
     {
       "name": "path_provider_android",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/path_provider_android-2.2.14",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "path_provider_foundation",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "path_provider_linux",
@@ -495,7 +477,7 @@
     },
     {
       "name": "realtime_client",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/realtime_client-2.4.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/realtime_client-2.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -513,21 +495,21 @@
     },
     {
       "name": "shared_preferences",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences-2.3.3",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences-2.3.4",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.5"
     },
     {
       "name": "shared_preferences_android",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences_android-2.3.3",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "shared_preferences_foundation",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.3",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.4",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.4"
     },
     {
       "name": "shared_preferences_linux",
@@ -609,7 +591,7 @@
     },
     {
       "name": "storage_client",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/storage_client-2.2.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/storage_client-2.3.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -626,32 +608,14 @@
       "languageVersion": "2.18"
     },
     {
-      "name": "stripe_android",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stripe_android-11.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
-      "name": "stripe_ios",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stripe_ios-11.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
-      "name": "stripe_platform_interface",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stripe_platform_interface-11.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "supabase",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/supabase-2.6.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/supabase-2.6.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "supabase_flutter",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/supabase_flutter-2.8.1",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/supabase_flutter-2.8.2",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -699,9 +663,9 @@
     },
     {
       "name": "url_launcher_ios",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.2",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "url_launcher_linux",
@@ -711,7 +675,7 @@
     },
     {
       "name": "url_launcher_macos",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.1",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.2",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -771,7 +735,7 @@
     },
     {
       "name": "win32",
-      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/win32-5.8.0",
+      "rootUri": "file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/win32-5.9.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -800,7 +764,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-11-29T18:38:43.920861Z",
+  "generated": "2024-12-27T11:29:12.502118Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/rodrigojimenez/Downloads/flutter",

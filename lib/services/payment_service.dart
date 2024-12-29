@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
@@ -21,8 +22,6 @@ class PaymentService{
       if(response.statusCode != 200){
         throw Exception('Failed to make payment: ${response.body}');
       }
-
-      final paymentIntentData = json.decode(response.body);
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
             paymentIntentClientSecret: paymentIntentData['client_secret'],
@@ -60,4 +59,4 @@ class PaymentService{
       rethrow;
     }
   }
-}
+}*/

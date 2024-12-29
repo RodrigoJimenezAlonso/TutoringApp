@@ -4,11 +4,11 @@ class MySQLHelper{
   static Future<MySqlConnection> connect() async{
     final conn = await MySqlConnection.connect(
       ConnectionSettings(
-        host: '127.0.0.1',
+        host: '10.0.2.2',
         port: 3306,
-        user: 'tfg',
-        password: '1234',
-        db: 'tfg',
+        user: 'root',
+        password: 'password',
+        db: 'tfg_database',
       )
     );
     return conn;
