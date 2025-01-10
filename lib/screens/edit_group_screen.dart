@@ -34,7 +34,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
         });
       }else{
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('GRoup not found'))
+            SnackBar(content: Text('Group not found'))
         );
       }
 

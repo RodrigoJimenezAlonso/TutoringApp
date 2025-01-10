@@ -1,58 +1,65 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/auth/login_page.dart';
+import 'package:proyecto_rr_principal/widget/home_page.dart';
 import 'providers/event_provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'providers/user_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Stripe.publishableKey = 'pk_test_51Q3h3zP0TUOqrBT5Mu4ludEI8Nd3Wvfhprjx55suOFbbZT87NFIcKKznHqKqfnqhTcK9UotvqcXytQhFM250NcWL00Gz7EE6rE';
-  try{
+  try {
     final conn = await MySQLHelper.connect();
-    print('MySql connected successfully');
+    print('MySQL conectado correctamente');
     await conn.close();
-  }
-  catch(e){
+  } catch (e) {
+    print('Error al conectar con MySQL: $e');
     throw Exception('Could not connect to MYSQL: $e');
   }
+
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  //imporatr en el home el wallet screen
   Widget build(BuildContext context) {
+    print("build: Iniciando la aplicación...");
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (_)=> EventProvider(),
+          create: (_) => EventProvider(),
         ),
         ChangeNotifierProvider(
-          create: (_)=> UserProvider(),
+          create: (_) => UserProvider(),
         )
       ],
       child: MaterialApp(
-        title: 'date picker alert',
+        title: 'Date Picker Alert',
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', ''),
+          const Locale('es', 'ES'),
+        ],
         theme: ThemeData(primarySwatch: Colors.blue),
         home: LoginPage(),
       ),
     );
+  }
 
-
-    /*Scaffold(
-        appBar: AppBar(
-          title: Text('Date Picker Alert'),
-        ),
-        body: EventsController(),*/
-    //),
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    print("home: Estado de login desde SharedPreferences - $isLoggedIn");
+    return prefs.containsKey('student_id');
   }
 }
-
-
-

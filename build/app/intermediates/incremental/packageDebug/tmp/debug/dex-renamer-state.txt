@@ -1,4 +1,4 @@
-#Sun Dec 29 12:29:01 CET 2024
+#Fri Jan 10 17:33:19 CET 2025
 base.0=/Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/app/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/app/intermediates/dex/debug/mergeLibDexDebug/0/classes.dex
 base.2=/Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/app/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex

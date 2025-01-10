@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_rr_principal/widget/home_page.dart';
 import '../auth/register_page.dart';
 import '../events.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/providers/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -30,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
-        'SELECT id, password_hash FROM users WHERE email = ?',
-        [emailController.text.trim()]
+          'SELECT id, password_hash FROM users WHERE email = ?',
+          [emailController.text.trim()]
       );
 
       if(result.isEmpty){
@@ -48,19 +50,39 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
+
       final userId = user['id'];
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', true);
+      prefs.setInt('userId', userId);
+
       Provider.of<UserProvider>(context, listen: false).setUserId(userId);
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-            builder: (context)=> EventsController()
+          builder: (context) => HomePage(),
         ),
       );
-    }catch (e) {
+    } catch (e) {
       setState(() {
         errorMessage = 'An unexpected error occurred: ${e.toString()}';
       });
     }
   }
+
+
+
+  Future<void> _loginUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', true);
+    print("Login: Usuario logueado, estado guardado en SharedPreferences");
+
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => HomePage(),
+    ));
+  }
+
 
   @override
   Widget build(BuildContext context) {
