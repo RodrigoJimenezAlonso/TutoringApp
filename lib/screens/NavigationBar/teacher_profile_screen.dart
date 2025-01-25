@@ -1,89 +1,108 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-import 'package:proyecto_rr_principal/auth/login_page.dart';
-import 'package:proyecto_rr_principal/date_time_picker.dart';
-import 'package:proyecto_rr_principal/screens/NavigationBar/booking_screen.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:proyecto_rr_principal/mysql.dart';
+import 'message_screen.dart';
 
 class TeacherProfileScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
+  final Map<String, dynamic> teacher;
 
-    void _logOut()async{
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isLoggedIn', false);
-
-      Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context)=>LoginPage(),
-      ));
+  TeacherProfileScreen({
+    required this.teacher,
+  });
+  Future<int?> getStudentId()async{
+    try{
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'SELECT id FROM users WHERE role = ? LIMIT 1',
+          [
+            'student'
+          ],
+      );
+      if(result.isEmpty){
+        return null;
+      }
+      final student = result.first;
+      await conn.close();
+      return student['id'];
+    }catch(e){
+      print('Error obteniendo student Id: $e');
+      return null;
     }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Teacher Profile'),
-      ),
-      body: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Name'
-            ),
-          ),
-
-          TextField(
-            decoration: InputDecoration(
-                labelText: 'Description'
-            ),
-          ),
-
-          SizedBox(
-            height: 10,
-          ),
-
-          Expanded(
-              child: TableCalendar(
-                  focusedDay: DateTime.now(),
-                  firstDay: DateTime.now(),
-                  lastDay: DateTime.now().add(Duration(days: 365)),
-
-                  onDaySelected: (selectedDay, focusedDay){
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_)=> EventReservationScreen(selectedDay),
-                        ),
-                    );
-                  }
-              ),
-          ),
-
-          /*ElevatedButton(
-              onPressed: _logOut(),
-              child: Text('Log Out'),
-          ),*/
-        ],
-      ),
-    );
   }
-}
-
-
-class EventReservationScreen extends StatelessWidget{
-  final DateTime selectedDay;
-  EventReservationScreen(this.selectedDay);
-
-
-
   @override
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book Event'),
+        title: Text(teacher['name']),
       ),
-      body: Center(
-        child: Text('Book event for: $selectedDay'),
+      body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                teacher['name'],
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Subject: ${teacher['subject']}',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Bio: ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              Text(
+                teacher['bio'],
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+
+              Spacer(),
+
+              Center(
+                child: ElevatedButton(
+                    onPressed: ()async{
+                      final studentId = await getStudentId();
+                      if(studentId == null){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error, no se encontro al alumno...'),
+                            )
+                        );
+                        return;
+                      }
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context)=> MessageScreen(
+                                  alumnoId: studentId,
+                                  professorId: teacher['id'],
+                              )
+                          ),
+                      );
+                    },
+                    child: Text('Contact the Teacher'),
+                ),
+              ),
+            ],
+          ),
       ),
     );
   }

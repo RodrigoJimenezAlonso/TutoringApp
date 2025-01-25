@@ -3,10 +3,22 @@ import 'package:proyecto_rr_principal/events.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/event_detail_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/message_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/search_screen.dart';
-import 'package:proyecto_rr_principal/screens/NavigationBar/teacher_profile_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/teacher_profile_screen_personal.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/student_profile_screen.dart';
 
 class HomePage extends StatefulWidget {
+  final int alumnoId;
+  final int profesorId;
+  final int userID;
+  final String role;
+
+  HomePage({
+    required this.alumnoId,
+    required this.profesorId,
+    required this.userID,
+    required this.role,
+  });
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -14,65 +26,89 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    EventsController(),
-    MessageScreen(),
-    SearchScreen(),
-    TeacherProfileScreen(),
-    StudentProfileScreen(),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    print('HomePage - initState: Página inicializada');
-    print('HomePage - initState: Página inicial seleccionada: $_selectedIndex');
-  }
-
-  void _onItemTapped(int index) {
-    print('HomePage - _onItemTapped: Tocaste el ícono con índice $index');
-    setState(() {
-      _selectedIndex = index;
-      print('HomePage - _onItemTapped: Página cambiada a índice $_selectedIndex');
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    print('HomePage - build: Reconstruyendo la interfaz');
-    print('HomePage - build: Página seleccionada: $_selectedIndex');
+
+    print('UserRole : ${widget.role}');
+
+    final List<NavigationItem> navItems = widget.role.trim().toLowerCase() == 'teacher'
+        ? [
+      NavigationItem(
+        label: 'Events',
+        icon: Icons.event,
+        page: EventsController(),
+      ),
+      NavigationItem(
+        label: 'Messages',
+        icon: Icons.message,
+        page: MessageScreen(
+          alumnoId: widget.alumnoId,
+          professorId: widget.profesorId,
+        ),
+      ),
+      NavigationItem(
+        label: 'Search',
+        icon: Icons.search,
+        page: SearchScreen(),
+      ),
+      NavigationItem(
+        label: 'Teacher Profile',
+        icon: Icons.person,
+        page: TeacherProfileScreenPersonal(
+          userId: widget.userID,
+        ),
+      ),
+    ]
+        : [
+      NavigationItem(
+        label: 'Events',
+        icon: Icons.event,
+        page: EventsController(),
+      ),
+      NavigationItem(
+        label: 'Messages',
+        icon: Icons.message,
+        page: MessageScreen(
+          alumnoId: widget.alumnoId,
+          professorId: widget.profesorId,
+        ),
+      ),
+      NavigationItem(
+        label: 'Search',
+        icon: Icons.search,
+        page: SearchScreen(),
+      ),
+      NavigationItem(
+        label: 'Student Profile',
+        icon: Icons.person,
+        page: StudentProfileScreen(),
+      ),
+    ];
+
+    final List<Widget> pages = navItems.map((item) => item.page).toList();
+
+    final List<BottomNavigationBarItem> bottomNavItems = navItems
+        .map(
+          (item) => BottomNavigationBarItem(
+        icon: Icon(item.icon),
+        label: item.label,
+      ),
+    ).toList();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
         backgroundColor: Colors.white54,
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event),
-            label: 'Events',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'Messages',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Teacher Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Student Profile',
-          ),
-        ],
+        items: bottomNavItems,
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
         backgroundColor: Colors.black,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white54,
@@ -80,4 +116,17 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class NavigationItem{
+  final String label;
+  final IconData icon;
+  final Widget page;
+
+  NavigationItem({
+    required this.icon,
+    required this.label,
+    required this.page,
+  });
+
 }

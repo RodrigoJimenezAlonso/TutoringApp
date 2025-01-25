@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../auth/login_page.dart';
-import 'send_email.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 
@@ -43,12 +42,9 @@ class _RegisterPageState extends State<RegisterPage> {
         [email, passwordHash, selectedRole],
       );
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-            builder: (context)=> LoginPage()
-        )
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
-
-    }catch (e) {
+    } catch (e) {
       setState(() {
         errorMessage = 'An unexpected error occurred: ${e.toString()}';
       });
@@ -58,97 +54,181 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('REGISTER')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your email";
-                  } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return "Please enter a valid email";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your password";
-                  } else if (value.length < 8) {
-                    return "Password must be at least 8 characters long";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: confirmPasswordController,
-                decoration: InputDecoration(labelText: 'Confirm Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please confirm your password";
-                  } else if (value != passwordController.text) {
-                    return "Passwords do not match";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              DropdownButtonFormField(
-                  value: selectedRole,
-                  decoration: InputDecoration(labelText: 'role'),
-                  items: [
-                    DropdownMenuItem(
-                        value: 'student',
-                        child: Text('Student')
-                    ),
-                    DropdownMenuItem(
-                        value: 'teacher',
-                        child: Text('Teacher')
-                    ),
-                  ],
-                  onChanged: (value){
-                    if(value != null){
-                      setState(() {
-                        selectedRole = value;
-                      });
-                    }
-                  }
-              ),
-              SizedBox(height: 20,),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    signUp();
-                  }
-                },
-                child: Text('Register'),
-              ),
-              SizedBox(height: 10),
-              if (errorMessage.isNotEmpty)
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Colors.red),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Header or logo
+                Icon(
+                  Icons.person_add,
+                  size: 100,
+                  color: Colors.green,
                 ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                child: Text('Already have an account? Log in here'),
-              ),
-            ],
+                SizedBox(height: 20),
+                Text(
+                  'Create an Account',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Register To Start With Your Lessons!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 20),
+                // Form
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your email";
+                          } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return "Please enter a valid email";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your password";
+                          } else if (value.length < 8) {
+                            return "Password must be at least 8 characters long";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20), // Space between Password and Confirm Password
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          prefixIcon: Icon(Icons.lock_outline, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please confirm your password";
+                          } else if (value != passwordController.text) {
+                            return "Passwords do not match";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      DropdownButtonFormField(
+                        value: selectedRole,
+                        decoration: InputDecoration(
+                          labelText: 'Role',
+                          prefixIcon: Icon(Icons.account_box, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'student',
+                            child: Text('Student'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'teacher',
+                            child: Text('Teacher'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedRole = value;
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      // Single stylized register button
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            signUp();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 80,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Register',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      // Error message
+                      if (errorMessage.isNotEmpty)
+                        Text(
+                          errorMessage,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      SizedBox(height: 10),
+                      // Login link
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                          );
+                        },
+                        child: Text(
+                          'Already have an account? Log in here',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
