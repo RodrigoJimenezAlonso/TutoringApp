@@ -57,82 +57,38 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
             return AlertDialog(
-              title: Text('Edit Event'),
+              title: Text('Edit Event',
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(labelText: 'Title'),
-                    ),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      child: Text('Select Start Date & Time'),
-                      onPressed: () async {
-                        DateTime? newStartDate = await showDatePicker(
-                          context: context,
-                          initialDate: selectedStartTime,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2101),
-                        );
-                        if (newStartDate != null) {
-                          TimeOfDay? newStartTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(selectedStartTime),
-                          );
-                          if (newStartTime != null) {
-                            setDialogState(() {
-                              selectedStartTime = DateTime(
-                                newStartDate.year,
-                                newStartDate.month,
-                                newStartDate.day,
-                                newStartTime.hour,
-                                newStartTime.minute,
-                              );
-                            });
-                          }
+                    _buildTextField(titleController, 'Title'),
+                    SizedBox(height: 10,),
+                    _buildTextField(descriptionController, 'Description'),
+                    SizedBox(height: 20),
+                    _buildDateTimePicker(
+                        context,
+                        setDialogState,
+                        label: 'Start Date and Time',
+                        selectedDateTime: selectedStartTime,
+                        onDateTimeSelected: (newDateTime){
+                          setDialogState(()=> selectedStartTime = newDateTime);
                         }
-                      },
                     ),
-                    Text(
-                      'Selected Start Date: ${DateFormat('dd/MM/yyyy HH:mm').format(selectedStartTime)}',
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      child: Text('Select End Date & Time'),
-                      onPressed: () async {
-                        DateTime? newEndDate = await showDatePicker(
-                          context: context,
-                          initialDate: selectedEndTime,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2101),
-                        );
-                        if (newEndDate != null) {
-                          TimeOfDay? newEndTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(selectedEndTime),
-                          );
-                          if (newEndTime != null) {
-                            setDialogState(() {
-                              selectedEndTime = DateTime(
-                                newEndDate.year,
-                                newEndDate.month,
-                                newEndDate.day,
-                                newEndTime.hour,
-                                newEndTime.minute,
-                              );
-                            });
-                          }
+                    SizedBox(height: 10,),
+                    _buildDateTimePicker(
+                        context,
+                        setDialogState,
+                        label: 'End Date and Time',
+                        selectedDateTime: selectedEndTime,
+                        onDateTimeSelected: (newDateTime){
+                          setDialogState(()=> selectedEndTime = newDateTime);
                         }
-                      },
-                    ),
-                    Text(
-                      'Selected End Date: ${DateFormat('dd/MM/yyyy HH:mm').format(selectedEndTime)}',
                     ),
                   ],
                 ),
@@ -236,6 +192,60 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
     );
   }
 
+  Widget _buildTextField(TextEditingController controller, String label){
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Colors.blueAccent,
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.blueAccent,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildDateTimePicker(
+      BuildContext context,
+      StateSetter setDialogState,{
+        required String label,
+        required DateTime selectedDateTime ,
+        required ValueChanged<DateTime> onDateTimeSelected,
+      }){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ElevatedButton(
+          onPressed: ()async{
+            final newDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDateTime,
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2101),
+            );
+            if(newDate != null){
+              final newDateTime = DateTime(
+                newDate.year,
+                newDate.month,
+                newDate.day,
+                newDate.hour,
+                newDate.minute,
+              );
+              onDateTimeSelected(newDateTime);
+            }
+          },
+          child: Text(label),
+        ),
+        Text('Selected: ${DateFormat('dd/MM/yyyy HH:mm').format(selectedDateTime)}'),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context){
     final startTime = widget.event['start_time'];
@@ -245,55 +255,138 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('Event Details'),
+          title: Text('Event Details',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.blueAccent,
+          centerTitle: true,
+          elevation: 0,
         ),
-        body: Padding(
+        body: Container(
+            color: Colors.white,
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Title: ${widget.event['title']}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                SizedBox(
-                  height: 10,
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                  child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDetailedRow(
+                            'Title',
+                            widget.event['title'],
+                          ),
+                          _buildDetailedRow(
+                            'Description',
+                            widget.event['description'],
+                          ),
+                          _buildDetailedRow(
+                            'Start Time',
+                            formatedStartTime,
+                          ),
+                          _buildDetailedRow(
+                            'End Time',
+                            formatedEndTime,
+                          ),
+                        ],
+                      ),
+                  ),
                 ),
 
-                Text('Description: ${widget.event['description']}', style: TextStyle(fontSize: 20,),),
-                SizedBox(
-                  height: 10,
-                ),
 
-                Text('Start Time: $formatedStartTime', style: TextStyle(fontSize: 20, ),),
-                SizedBox(
-                  height: 10,
-                ),
-
-                Text('End Time: $formatedEndTime', style: TextStyle(fontSize: 20, ),),
-                SizedBox(
-                  height: 20,
-                ),
-
+                SizedBox(height: 20,),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
-                        onPressed: ()=> _deleteEvent(context),
-                        child: Text('Delete')
+                    _buildActionButton(
+                        'Delete',
+                        Colors.red,
+                        Icons.delete,
+                        ()=>_deleteEvent(context),
                     ),
-
-                    ElevatedButton(
-                        onPressed: ()=> _editEvent(context),
-                        child: Text('Edit')
+                    _buildActionButton(
+                      'Edit',
+                      Colors.blue,
+                          Icons.edit,
+                          ()=>_editEvent(context),
                     ),
-
-                    ElevatedButton(
-                        onPressed: ()=> _bookEvent(context, widget.event['id']),
-                        child: Text('Book Event')
+                    _buildActionButton(
+                      'Book Event',
+                      Colors.green,
+                          Icons.book,
+                          ()=>_bookEvent(context, widget.event['id']),
                     ),
                   ],
-                ),
+                )
               ],
             ),
            ),
         );
+  }
+
+  Widget _buildDetailedRow(String label, String value){
+    return Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 5.0,
+        ),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blueAccent,
+            ),
+          ),
+          Expanded(
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+          )
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildActionButton(String label, Color color, IconData icon, VoidCallback onPressed){
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(
+            color: color,
+          ),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 12,
+        )
+      ),
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+            label,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+    );
   }
 }

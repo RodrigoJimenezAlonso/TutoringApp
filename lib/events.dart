@@ -83,14 +83,9 @@ class _EventsControllerState extends State<EventsController> {
   }
 
   Future<void> _addEventDialog(BuildContext context, DateTime selectedDate, {Map<String, dynamic>? eventToEdit}) async {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    if (eventToEdit != null) {
-      titleController.text = eventToEdit['title'];
-      descriptionController.text = eventToEdit['description'];
-      selectedDate = eventToEdit['start_time'];
-    }
+    final titleController = TextEditingController(text: eventToEdit?['title'] ?? '');
+    final descriptionController = TextEditingController(text: eventToEdit?['description'] ?? '');
+    selectedDate = eventToEdit?['start_time'] ?? selectedDate;
 
     showDialog<void>(
       context: context,
@@ -125,7 +120,12 @@ class _EventsControllerState extends State<EventsController> {
                 },
               ),
               SizedBox(height: 10,),
-              Text('Selected Date: ${selectedDate.toString()}'),
+              Text('Selected Date: ${selectedDate.toString()}',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
           actions: [
@@ -134,7 +134,14 @@ class _EventsControllerState extends State<EventsController> {
               child: Text('Cancel'),
             ),
             ElevatedButton(
-              child: Text(eventToEdit == null ? 'Add' : 'Update'),
+              child: Text(eventToEdit == null ? 'Add' : 'Update',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
               onPressed: () async {
                 final title = titleController.text.trim();
                 final description = descriptionController.text.trim();
@@ -194,8 +201,16 @@ class _EventsControllerState extends State<EventsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Events'),
+        title: Text(
+            'Events',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+        ),
+        backgroundColor: Colors.blue,
+        elevation: 0,
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -211,44 +226,142 @@ class _EventsControllerState extends State<EventsController> {
           ),
         ],
       ),
-      body: isLoading
-          ? Center(
-        child: CircularProgressIndicator(),
-      )
-          : events.isEmpty
-          ? Center(
-        child: Text('No events available.'),
-      )
-          : ListView.builder(
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          final event = events[index];
-          final startTime = event['start_time'];
-          final formattedDate = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(startTime);
 
-          return ListTile(
-            title: Text(
-              event['title'],
-              style: TextStyle(fontWeight: FontWeight.bold),
+      body: isLoading
+          ? _buildLoadingEffect()
+          : events.isEmpty
+            ? _buildEmptyState()
+            : _buildEventList()
+    );
+  }
+
+
+  Widget _buildLoadingEffect(){
+    return ListView.builder(
+        padding: EdgeInsets.all(12),
+        itemCount: 5,
+        itemBuilder: (context,index){
+          return Card(
+            margin: EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 16,
             ),
-            subtitle: Text(event['description']),
-            trailing: Text(
-              formattedDate,
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            onTap: () async {
-              final updated = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventDetailScreen(event: event),
-                ),
-              );
-              if (updated != null) {
-                await _fetchEvents();
-              }
-            },
+            child: ListTile(
+              title: Container(
+                height: 16,
+                color:Colors.grey[300],
+              ),
+
+              subtitle: Container(
+                height: 12,
+                color:Colors.grey[200],
+                margin: EdgeInsets.only(top: 6),
+              ),
+
+              trailing: Container(
+                height: 12,
+                width: 60,
+                color:Colors.grey[200],
+              ),
+
+            ),
           );
-        },
+        }
+    );
+  }
+
+  Widget _buildEmptyState(){
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.event_note,
+            size: 80,
+            color: Colors.blue[300],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'No Events Available...',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildEventList(){
+    return ListView.builder(
+      padding: EdgeInsets.all(12),
+        itemCount: events.length,
+        itemBuilder: (context, index){
+          final event = events[index];
+          final formatedDate = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(event['start_time']);
+
+          return Card(
+            margin: EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 16,
+            ),
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.all(16),
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue,
+                child: Icon(Icons.event, color: Colors.white,),
+
+              ),
+              title: Text(
+                event['title'],
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              subtitle: Text(
+                event['description'],
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              trailing: Text(
+                formatedDate,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.blueGrey,
+                ),
+              ),
+
+              onTap: ()async{
+                final update = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context)=>EventDetailScreen(
+                            event: event
+                        ),
+                    ),
+                );
+                if(update!= null){
+                  await _fetchEvents();
+                }
+              },
+
+            ),
+          );
+        }
     );
   }
 }

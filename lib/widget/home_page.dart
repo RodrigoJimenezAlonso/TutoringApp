@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
       NavigationItem(
         label: 'Student Profile',
         icon: Icons.person,
-        page: StudentProfileScreen(),
+        page: StudentProfileScreen(studentId: widget.alumnoId,),
       ),
     ];
 

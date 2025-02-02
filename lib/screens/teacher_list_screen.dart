@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:path/path.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'NavigationBar/teacher_profile_screen.dart';
 import 'dart:convert';
@@ -43,49 +44,130 @@ class TeacherListScreen extends StatelessWidget{
     return Scaffold(
       appBar: AppBar(
         title: Text('Teachers For $subject'),
+        centerTitle: true,
+        backgroundColor: Colors.green,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
           future: _fetchTeachers(subject),
           builder: (context, snapshot){
-            if(!snapshot.hasData){
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+            if(snapshot.connectionState == ConnectionState.waiting){
+              return _buildLoadingEffect();
             }
 
             if(snapshot.hasError){
               return Center(
-                child: Text('Error: ${snapshot.error}'),
+                child: Text(
+                    'Error: ${snapshot.error}',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                  ),
+                ),
               );
             }
 
-            final teachers = snapshot.data!;
+            final teachers = snapshot.data ?? [];
 
             if(teachers.isEmpty){
               return Center(
-                child: Text('No teachers found for: $subject'),
+                child: Text(
+                    'No teachers found for: $subject',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                ),
               );
             }
 
             return ListView.builder(
+                padding: EdgeInsets.all(12),
                 itemCount: teachers.length,
                 itemBuilder: (context, index){
                   final teacher = teachers[index];
-                  return ListTile(
-                    title: Text(teacher['name']),
-                    subtitle: Text(teacher['bio']),
-                    onTap: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context)=> TeacherCalendarScreen(teacherId: teacher['id'])
-                          ),
-                      );
-                    },
-                  );
+                  return _buildTeacherCard(context, teacher);
                 }
             );
           }
+      ),
+    );
+  }
+
+  Widget _buildLoadingEffect(){
+    return ListView.builder(
+        padding: EdgeInsets.all(12),
+        itemCount: 5,
+        itemBuilder: (context, index){
+          return Card(
+            margin: EdgeInsets.symmetric(
+              vertical: 8,
+            ),
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.grey[300],
+                radius: 25,
+              ),
+              title: Container(
+                width: 150,
+                height: 16,
+                color: Colors.grey[300],
+              ),
+              subtitle: Container(
+                width: 100,
+                height: 12,
+                color: Colors.grey[300],
+                margin: EdgeInsets.only(top: 6),
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  Widget _buildTeacherCard(BuildContext context, Map<String, dynamic> teacher){
+    return Card(
+      margin: EdgeInsets.symmetric(
+        vertical: 8,
+      ),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.green,
+          child: Icon(Icons.person, color: Colors.white,),
+        ),
+        title: Text(
+          teacher['name'],
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          teacher['bio'],
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.grey[700],
+          ),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey,),
+        onTap: (){
+          Navigator.push(
+            context, MaterialPageRoute(
+              builder: (context)=>TeacherCalendarScreen(
+                  teacherId: teacher['id'],
+              ),
+            )
+          );
+        },
       ),
     );
   }

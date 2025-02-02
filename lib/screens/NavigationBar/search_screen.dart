@@ -56,21 +56,29 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search a Subject...',
+                  filled: true,
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
                   ),
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search, color: Colors.green,),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 14,
+                  ),
                 ),
               ),
           ),
           Expanded(
               child: ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                  ),
                   itemCount: subjects.length,
                   itemBuilder: (context, index){
                     final subject = subjects[index];
                     if(query.isEmpty || subject.toLowerCase().contains(query.toLowerCase())){
-                      return ListTile(
-                        title: Text(subject),
+                      return GestureDetector(
                         onTap: (){
                           Navigator.push(
                               context,
@@ -79,6 +87,27 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                           );
                         },
+                        child: Card(
+                          margin: EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: Icon(Icons.menu_book, color: Colors.green,),
+                            title: Text(
+                              subject,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey,),
+
+                          ),
+                        ),
                       );
                     }
                     return SizedBox.shrink();
