@@ -145,7 +145,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       appBar: AppBar(
         title: Text('Student Profile'),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -155,7 +155,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.blue,
                 child: Icon(
                   Icons.person,
                   size: 50,
@@ -215,7 +215,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               ElevatedButton(
                 onPressed: _isSubmitting? null : _updateProfile,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(
                       vertical: 14,
                       horizontal: 50,

@@ -62,7 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: Icon(Icons.search, color: Colors.green,),
+                  prefixIcon: Icon(Icons.search, color: Colors.blue,),
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 14,
                   ),
@@ -96,7 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            leading: Icon(Icons.menu_book, color: Colors.green,),
+                            leading: Icon(Icons.menu_book, color: Colors.blue,),
                             title: Text(
                               subject,
                               style: TextStyle(

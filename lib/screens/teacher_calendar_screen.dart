@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
+import 'chat_screen.dart';
 
 
 class TeacherCalendarScreen extends StatefulWidget {
   final int teacherId;
+  final int alumnoId;
 
   TeacherCalendarScreen({
-    required this.teacherId
+    required this.teacherId,
+    required this.alumnoId,
   });
 
   @override
@@ -152,7 +155,23 @@ class _TeacherCalendarScreenState extends State<TeacherCalendarScreen>{
           ),
         ),
       ),
-
+      floatingActionButton: FloatingActionButton(
+          onPressed: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context)=>ChatScreen(
+                      alumnoId: widget.alumnoId,
+                      profesorId: widget.teacherId,
+                    ),
+                )
+            );
+          },
+        child: Icon(Icons.chat),
+        backgroundColor: Colors.blue,
+        tooltip: 'Chat With Teacher',
+      ),
     );
+
   }
 }

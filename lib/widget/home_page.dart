@@ -42,6 +42,8 @@ class _HomePageState extends State<HomePage> {
         label: 'Messages',
         icon: Icons.message,
         page: MessageScreen(
+          userId: widget.alumnoId,
+          role: widget.role,
           alumnoId: widget.alumnoId,
           professorId: widget.profesorId,
         ),
@@ -69,6 +71,8 @@ class _HomePageState extends State<HomePage> {
         label: 'Messages',
         icon: Icons.message,
         page: MessageScreen(
+          userId: widget.alumnoId,
+          role: widget.role,
           alumnoId: widget.alumnoId,
           professorId: widget.profesorId,
         ),

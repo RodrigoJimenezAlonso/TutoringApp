@@ -39,6 +39,38 @@ class TeacherListScreen extends StatelessWidget{
     }).toList();
   }
 
+
+  Future<int?> _fetchAlumnoId(int userId)async{
+    final conn = await MySQLHelper.connect();
+    final result = await conn.query(
+      'SELECT id FROM users WHERE id = ? AND role = ?',
+      [userId, 'student'],
+    );
+    await conn.close();
+    if(result.isNotEmpty){
+      return result.first['id'] as int?;
+    }
+    return null;
+  }
+
+  Future<int?> getUserIdByEmail(String email)async{
+    try{
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT id FROM users WHERE email = ?',
+        [email],
+      );
+      await conn.close();
+      if(result.isNotEmpty){
+        return result.first['id'] as int;
+      }
+      return null;
+    }catch(e){
+      print('Error al obtener el user_id: $e');
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -159,14 +191,32 @@ class TeacherListScreen extends StatelessWidget{
           ),
         ),
         trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey,),
-        onTap: (){
-          Navigator.push(
-            context, MaterialPageRoute(
-              builder: (context)=>TeacherCalendarScreen(
-                  teacherId: teacher['id'],
-              ),
-            )
-          );
+        onTap: () async {
+          final userID = await getUserIdByEmail('rodrigo2@gmail.com'); // todo: Obtener el userId dinámicamente
+          if (userID != null) {
+            final alumnoId = await _fetchAlumnoId(userID);
+            if (alumnoId != null) {
+              final teacherId = teacher['id'] is int ? teacher['id'] : int.tryParse(teacher['id'].toString()) ?? 0;
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeacherCalendarScreen(
+                    alumnoId: alumnoId,
+                    teacherId: teacher['id'],
+                  ),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: alumnoId no encontrado')),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: userId no encontrado')),
+            );
+          }
         },
       ),
     );

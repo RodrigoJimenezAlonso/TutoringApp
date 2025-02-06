@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_rr_principal/screens/chat_list_screen.dart';
 import 'package:proyecto_rr_principal/screens/chat_screen.dart';
 import 'package:proyecto_rr_principal/video_call_screen.dart';
 
 class MessageScreen extends StatelessWidget{
 
+  final int userId;
+  final String role;
   final int alumnoId;
   final int professorId;
 
+
+
   MessageScreen({
+    required this.userId,
+    required this.role,
     required this.alumnoId,
     required this.professorId,
   });
@@ -17,29 +24,17 @@ class MessageScreen extends StatelessWidget{
     String channelName = '${alumnoId}-${professorId}';
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat'),
-        actions: [
-          IconButton(
-              icon: Icon(Icons.video_call),
-              onPressed: (){
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (context)=> VideoCallScreen(
-                          userId: alumnoId,
-                          token: '',
-                          channelName: channelName,
-                      ),
-                  )
-                );
-              },
-
-              
+        backgroundColor: Colors.blue[800],
+        title: Text(
+          'Messages',
+          style: TextStyle(
+            color: Colors.white,
           ),
-        ],
+        ),
       ),
-      body: ChatScreen(
-          alumnoId: alumnoId,
-          profesorId: professorId,
+      body: ChatListScreen(
+          role: role,
+          userId: userId
       ),
     );
   }
