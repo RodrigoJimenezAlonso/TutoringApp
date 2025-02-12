@@ -12,6 +12,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController nameController  = TextEditingController();
+  final TextEditingController userNameController  = TextEditingController();
+
   String errorMessage = '';
   String selectedRole = 'student';
   final _formKey = GlobalKey<FormState>();
@@ -33,13 +36,25 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
+    final name = nameController.text.trim();
+    final userName = userNameController.text.trim();
+
+
     try {
       final conn = await MySQLHelper.connect();
       final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
+      int? teacherId;
+      if(selectedRole == 'teacher'){
+        var teacherResult = await conn.query(
+          'INSERT INTO teachers(name, created_at, updated_at) VALUES(?, NOW(), NOW())',
+          [name]
+        );
+        teacherId = teacherResult.insertId;
+      }
       await conn.query(
-        'INSERT INTO users(email, password_hash, role) VALUES(?,?,?)',
-        [email, passwordHash, selectedRole],
+        'INSERT INTO users(username,email, password_hash, role, teacher_id, created_at) VALUES(?,?,?,?,?,NOW())',
+        [userName, email, passwordHash, selectedRole, teacherId],
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -92,6 +107,40 @@ class _RegisterPageState extends State<RegisterPage> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          prefixIcon: Icon(Icons.person, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your name";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20,),
+                      TextFormField(
+                        controller: userNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          prefixIcon: Icon(Icons.account_circle, color: Colors.green),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your username";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20,),
                       TextFormField(
                         controller: emailController,
                         decoration: InputDecoration(

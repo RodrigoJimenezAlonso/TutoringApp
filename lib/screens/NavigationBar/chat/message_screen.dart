@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto_rr_principal/screens/chat_list_screen.dart';
-import 'package:proyecto_rr_principal/screens/chat_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/chat/chat_list_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/chat/chat_screen.dart';
 import 'package:proyecto_rr_principal/video_call_screen.dart';
 
 class MessageScreen extends StatelessWidget{
@@ -23,7 +23,7 @@ class MessageScreen extends StatelessWidget{
   Widget build(BuildContext context) {
     String channelName = '${alumnoId}-${professorId}';
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         backgroundColor: Colors.blue[800],
         title: Text(
           'Messages',
@@ -31,7 +31,7 @@ class MessageScreen extends StatelessWidget{
             color: Colors.white,
           ),
         ),
-      ),
+      ),*/
       body: ChatListScreen(
           role: role,
           userId: userId

@@ -43,9 +43,10 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search a Subject')),
+      backgroundColor: Colors.grey[100],
       body: Column(
         children: [
+          SizedBox(height: 60,),
           Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -96,7 +97,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            leading: Icon(Icons.menu_book, color: Colors.blue,),
+                            leading: Icon(Icons.menu_book, color: Colors.blue[600],),
                             title: Text(
                               subject,
                               style: TextStyle(

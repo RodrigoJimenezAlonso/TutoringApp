@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:path/path.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
-import 'NavigationBar/teacher_profile_screen.dart';
+import 'NavigationBar/Profiles/teacherProfile/teacher_profile_screen.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'teacher_calendar_screen.dart';
@@ -75,9 +75,15 @@ class TeacherListScreen extends StatelessWidget{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Text('Teachers For $subject'),
+        automaticallyImplyLeading: true,
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
+        title: Text('Teachers For $subject', style: TextStyle(
+          color: Colors.white,
+        ),),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.blue[800],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
           future: _fetchTeachers(subject),
@@ -172,7 +178,7 @@ class TeacherListScreen extends StatelessWidget{
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blue,
           child: Icon(Icons.person, color: Colors.white,),
         ),
         title: Text(

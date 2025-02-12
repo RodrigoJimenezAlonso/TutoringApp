@@ -33,17 +33,30 @@ class _EventsControllerState extends State<EventsController> {
       print('Connected to database.');
 
       final userId = Provider.of<UserProvider>(context, listen: false).userId;
-      if (userId == null) {
-        throw Exception('User ID is null');
+      final role = Provider.of<UserProvider>(context, listen: false).role;
+
+      // Comprobación de null para userId y role
+      if (userId == null || role == null) {
+        throw Exception('User ID or role is null');
       }
 
-      final result = await conn.query(
-        "SELECT id, title, description, "
-            "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i:%s') AS CHAR) AS start_time, "
-            "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i:%s') AS CHAR) AS end_time "
-            "FROM events WHERE user_id = ?",
-        [userId],
-      );
+      String query = "";
+      List<dynamic> params = [userId];
+
+      // Lógica de la consulta según el rol
+      if (role == 'teacher') {
+        query = "SELECT id, title, description, "
+            "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS start_time,"
+            "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS end_time "
+            "FROM events WHERE user_id = ?";
+      } else if (role == 'student') {
+        query = "SELECT id, title, description, "
+            "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS start_time,"
+            "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS end_time "
+            "FROM events WHERE user_id = ?";
+      }
+
+      final result = await conn.query(query, params);
 
       print('Raw query result: $result');
 
@@ -200,29 +213,41 @@ class _EventsControllerState extends State<EventsController> {
 
   @override
   Widget build(BuildContext context) {
+    final role = Provider.of<UserProvider>(context, listen: false).role;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
             'Events',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.grey[100],
         elevation: 0,
         actions: [
+          if(role == 'teacher')
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () async {
+                final selectedDate = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DatePicker()),
+                );
+                if (selectedDate != null) {
+                  _addEventDialog(context, selectedDate);
+                }
+              },
+            ),
           IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () async {
-              final selectedDate = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DatePicker()),
-              );
-              if (selectedDate != null) {
-                _addEventDialog(context, selectedDate);
+              icon: Icon(
+                Icons.school,
+                color: Colors.blue[800],
+              ),
+              onPressed: () {
+                // do something
               }
-            },
           ),
         ],
       ),

@@ -32,11 +32,12 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => EventProvider(),
-        ),
-        ChangeNotifierProvider(
           create: (_) => UserProvider(),
-        )
+        ),
+        ChangeNotifierProxyProvider<UserProvider, EventProvider>(
+          create: (context) => EventProvider(userProvider: Provider.of<UserProvider>(context, listen: false)),
+          update: (context, userProvider, previous) => EventProvider(userProvider: userProvider),
+        ),
       ],
       child: MaterialApp(
         title: 'Date Picker Alert',

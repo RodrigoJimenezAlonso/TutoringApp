@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
-import 'package:proyecto_rr_principal/screens/chat_screen.dart'; // Añadido para la pantalla del chat
-import 'message_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/chat/chat_screen.dart'; // Añadido para la pantalla del chat
+import '../../chat/message_screen.dart';
 
 class TeacherProfileScreen extends StatelessWidget {
   final Map<String, dynamic> teacher;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
-import 'chat_screen.dart';
+import 'NavigationBar/chat/chat_screen.dart';
 
 
 class TeacherCalendarScreen extends StatefulWidget {

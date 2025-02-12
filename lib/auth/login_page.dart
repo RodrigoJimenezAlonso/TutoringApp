@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
-        'SELECT id, password_hash, teacher_id FROM users WHERE email = ?',
+        'SELECT id, password_hash, role, teacher_id FROM users WHERE email = ?',
         [emailController.text.trim()],
       );
 
@@ -56,11 +56,13 @@ class _LoginPageState extends State<LoginPage> {
       final profesorId = user['teacher_id'] ?? 0;
       final role = user['role'] ?? 'student';
 
+      print('ROLE: $role');
+
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLoggedIn', true);
       prefs.setInt('userId', userId);
 
-      Provider.of<UserProvider>(context, listen: false).setUserId(userId);
+      Provider.of<UserProvider>(context, listen: false).setUserId(userId, role);
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

@@ -21,44 +21,48 @@ class _ChatListScreenState extends State<ChatListScreen> {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
         '''
-         SELECT 
-           CASE
-            WHEN m.sender_id = ? THEN m.recipient_id
-            ELSE m.sender_id
-           END AS chat_partner_id,
-           u.username as chat_partner_name,
-           MAX(m.text) AS last_message,
-           MAX(m.time_stamp) AS last_message_time
-         FROM messages m 
-         JOIN users u ON u.id = CASE
-           WHEN m.sender_id = ? THEN m.recipient_id
-           ELSE m.sender_id
-         END 
-         WHERE m.sender_id = ? OR m.recipient_id = ?
-         GROUP BY chat_partner_id, chat_partner_name
-         ORDER BY last_message_time DESC
-        ''',
+      SELECT 
+        CASE 
+          WHEN m.sender_id = ? THEN m.recipient_id 
+          ELSE m.sender_id 
+        END AS chat_partner_id,
+        u.username AS chat_partner_name,
+        m.text AS last_message,
+        m.time_stamp AS last_message_time
+      FROM messages m
+      LEFT JOIN users u ON u.teacher_id = ? AND u.id = 
+        (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
+      WHERE m.sender_id = ? OR m.recipient_id = ?
+      ORDER BY m.time_stamp DESC
+      ''',
         [
-          widget.userId,
-          widget.userId,
-          widget.userId,
-          widget.userId,
+          widget.userId, widget.userId, widget.userId, widget.userId, widget.userId
         ],
       );
       await conn.close();
+
+      // Verificar los datos obtenidos en la consulta
+      print("Datos obtenidos de la BD: ${result.map((row) => row.fields).toList()}");
+
       return result.map((row) => row.fields).toList();
     } catch (e) {
-      print('Error en la consulta: $e');
+      print('Error en la consulta SQL: $e');
       return [];
     }
   }
 
   String _formatTime(String timeStamp) {
+    if(timeStamp == null || timeStamp.isEmpty){
+      return "--:--";
+    }
     DateTime time = DateTime.parse(timeStamp);
     return "${time.hour.toString().padLeft(2, '0')}: ${time.minute.toString().padLeft(2, '0')}";
   }
 
-  String _getInitials(String name) {
+  String _getInitials(String? name) {
+    if(name == null || name.isEmpty){
+      return "?";
+    }
     List<String> words = name.split(' ');
     String initials = words.map((word) => word[0]).take(2).join().toUpperCase();
     return initials;
@@ -68,6 +72,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.blue[800],
         title: Text(
           'Chats',
@@ -76,8 +81,21 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ),
         elevation: 0,
+
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              // do something
+            },
+          )
+        ],
+
       ),
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.grey[100],
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _loadChatList(),
         builder: (context, snapshot) {
@@ -122,7 +140,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue[700],
                   child: Text(
-                    _getInitials(chat['chat_partner_name']),
+                    _getInitials(chat['chat_partner_name']?.toString()),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -130,13 +148,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   ),
                 ),
                 title: Text(
-                  chat['chat_partner_name'],
+                  chat['chat_partner_name'] ?? "Unknown user",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: Text(
-                  chat['last_message'],
+                  chat['last_message'] != null ? chat['last_message'] : 'No Messages Available',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -144,7 +162,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   ),
                 ),
                 trailing: Text(
-                  chat['last_message_time'],
+                  chat['last_message_time'] != null
+                    ? _formatTime(chat['last_message_time'].toString())
+                    : '--:--',
                   style: TextStyle(
                     color: Colors.grey[500],
                     fontSize: 12,
