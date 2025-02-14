@@ -5,7 +5,9 @@ import 'package:proyecto_rr_principal/auth/login_page.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:proyecto_rr_principal/screens/settings.dart';
 import 'edit_student_profile_screen.dart';
+import '../../../settings.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final int studentId;
@@ -153,7 +155,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   ),
                   title: Text('Settings', style: TextStyle(fontSize: 16, color: Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsScreen(),
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: CircleAvatar(

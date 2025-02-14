@@ -2,6 +2,10 @@ agora_rtc_engine
 2.17
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/agora_rtc_engine-6.5.0/
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/agora_rtc_engine-6.5.0/lib/
+animated_appbar
+2.12
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/animated_appbar-2.1.5/
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/animated_appbar-2.1.5/lib/
 app_links
 3.3
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/app_links-6.3.3/
@@ -166,6 +170,10 @@ functions_client
 3.0
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/functions_client-2.4.0/
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/functions_client-2.4.0/lib/
+get
+2.15
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/get-4.7.1/
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/get-4.7.1/lib/
 gotrue
 3.0
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/gotrue-2.11.1/
@@ -422,6 +430,10 @@ sqflite_platform_interface
 3.5
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/sqflite_platform_interface-2.4.0/
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/sqflite_platform_interface-2.4.0/lib/
+stack
+2.12
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stack-0.2.2/
+file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stack-0.2.2/lib/
 stack_trace
 2.18
 file:///Users/rodrigojimenez/.pub-cache/hosted/pub.dev/stack_trace-1.11.1/

@@ -13,21 +13,33 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String errorMessage = '';
   final _formKey = GlobalKey<FormState>();
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    );
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   Future<void> signIn() async {
     if (!_formKey.currentState!.validate()) return;
+    _controller.forward(from: 0); // Inicia la animación desde el inicio
 
     try {
       final conn = await MySQLHelper.connect();
@@ -56,13 +68,13 @@ class _LoginPageState extends State<LoginPage> {
       final profesorId = user['teacher_id'] ?? 0;
       final role = user['role'] ?? 'student';
 
-      print('ROLE: $role');
-
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLoggedIn', true);
       prefs.setInt('userId', userId);
 
       Provider.of<UserProvider>(context, listen: false).setUserId(userId, role);
+
+      await Future.delayed(Duration(seconds: 1)); // Esperar la animación
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -93,14 +105,21 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.school,
-                  size: 100,
-                  color: Colors.blue,
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _controller.value * 6.28 * 2, // Dos vueltas completas
+                      child: child,
+                    );
+                  },
+                  child: Icon(
+                    Icons.school,
+                    size: 100,
+                    color: Colors.blue,
+                  ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20),
                 Text(
                   'Welcome Back!',
                   style: TextStyle(
@@ -109,9 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.blue,
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 10),
                 Text(
                   'Login With Your Account',
                   style: TextStyle(
@@ -119,106 +136,63 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.grey,
                   ),
                 ),
-                SizedBox(
-                  height: 30,
-                ),
+                SizedBox(height: 30),
                 Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: Icon(Icons.email,color: Colors.blue,),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              )
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email, color: Colors.blue),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your email";
-                            } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                              return "Please enter a valid email";
-                            }
-                            return null;
-                          },
                         ),
-                        SizedBox(height: 7,),
-                        TextFormField(
-                          controller: passwordController,
-                          decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock,color: Colors.blue,),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              )
+                      ),
+                      SizedBox(height: 7),
+                      TextFormField(
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock, color: Colors.blue),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your password";
-                            } else if (value.length < 8) {
-                              return "Please enter a longer password";
-                            }
-                            return null;
-                          },
                         ),
-                        /*SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              signIn();
-                            }
-                          },
-                          child: Text('Log In'),
-                        ),*/
-                        SizedBox(height: 20),
-                        if (errorMessage.isNotEmpty)
-                          Text(
-                            errorMessage,
-                            style: TextStyle(color: Colors.red),
+                        obscureText: true,
+                      ),
+                      SizedBox(height: 20),
+                      if (errorMessage.isNotEmpty)
+                        Text(
+                          errorMessage,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: signIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 80,
                           ),
-                        SizedBox(height: 20,),
-                        ElevatedButton(
-                            onPressed: signIn,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 80,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              'LogIn',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        SizedBox(height: 10,),
-                        TextButton(
-                            onPressed: (){
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context)=> RegisterPage()
-                                )
-                              );
-                            },
-                            child: Text(
-                                'If you do not have an account, Register Here!',
-                              style: TextStyle(
-                                color: Colors.green,
-                              ),
-                            ),
+                        child: Text(
+                          'Log In',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

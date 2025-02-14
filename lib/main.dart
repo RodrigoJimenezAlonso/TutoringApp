@@ -7,9 +7,11 @@ import 'package:proyecto_rr_principal/mysql.dart';
 import 'providers/user_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   try {
     final conn = await MySQLHelper.connect();
     print('MySQL conectado correctamente');
@@ -19,7 +21,19 @@ void main() async {
     throw Exception('Could not connect to MYSQL: $e');
   }
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProxyProvider<UserProvider, EventProvider>(
+          create: (context) => EventProvider(userProvider: Provider.of<UserProvider>(context, listen: false)),
+          update: (context, userProvider, previous) => EventProvider(userProvider: userProvider),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -27,35 +41,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("build: Iniciando la aplicación...");
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => UserProvider(),
-        ),
-        ChangeNotifierProxyProvider<UserProvider, EventProvider>(
-          create: (context) => EventProvider(userProvider: Provider.of<UserProvider>(context, listen: false)),
-          update: (context, userProvider, previous) => EventProvider(userProvider: userProvider),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Date Picker Alert',
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', ''),
-          const Locale('es', 'ES'),
-        ],
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: LoginPage(),
-      ),
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return MaterialApp(
+          title: 'Date Picker Alert',
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [
+            const Locale('en', ''),
+            const Locale('es', 'ES'),
+          ],
+          theme: settings.isDarkMode ? ThemeData.dark() : ThemeData.light(),
+          home: LoginPage(),
+        );
+      },
     );
   }
+
+
 
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();

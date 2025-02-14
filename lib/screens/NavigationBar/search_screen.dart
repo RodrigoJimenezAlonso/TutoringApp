@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_rr_principal/ArtificialIntelligence/quiz_screen.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/screens/teacher_list_screen.dart';
 
@@ -44,9 +45,31 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[100],
+        centerTitle: true,
+        title: Text('Search', style:
+          TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.school,
+              color: Colors.blue[800],
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => QuizScreen()),
+              );
+            },
+          )
+        ],
+      ),
       body: Column(
         children: [
-          SizedBox(height: 60,),
           Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(

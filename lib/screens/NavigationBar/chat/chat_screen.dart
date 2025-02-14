@@ -203,17 +203,25 @@ class _ChatScreenState extends State<ChatScreen> {
     if (message.isEmpty) return;
 
     final conn = await MySQLHelper.connect();
+    final result  = await conn.query(
+      'SELECT username FROM users WHERE id = ?',
+      [
+        widget.alumnoId,
+      ],
+    );
+    String senderName = result.isNotEmpty ? result.first[0] : 'Unknown';
     await conn.query(
       'INSERT INTO messages(sender_id, recipient_id, sender_name, text, time_stamp, is_read) VALUES(?, ?, ?, ?, ?, ?)',
       [
         widget.alumnoId,
         widget.profesorId,
-        widget.alumnoId == widget.alumnoId ? 'Student' : 'Professor',
+        senderName,
         message,
         DateTime.now().toIso8601String(),
         0,
       ],
     );
+
     await conn.close();
     messageController.clear();
     setState(() {}); // Recarga los mensajes

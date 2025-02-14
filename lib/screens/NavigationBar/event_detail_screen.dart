@@ -255,9 +255,13 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
 
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: true,
+          iconTheme: IconThemeData(
+            color: Colors.white, //change your color here
+          ),
           title: Text('Event Details',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              color: Colors.white
             ),
           ),
           backgroundColor: Colors.blueAccent,
@@ -281,7 +285,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildDetailedRow(
-                            'Title',
+                            'Event',
                             widget.event['title'],
                           ),
                           _buildDetailedRow(

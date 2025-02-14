@@ -22,21 +22,29 @@ class _ChatListScreenState extends State<ChatListScreen> {
       final result = await conn.query(
         '''
       SELECT 
-        CASE 
-          WHEN m.sender_id = ? THEN m.recipient_id 
-          ELSE m.sender_id 
-        END AS chat_partner_id,
-        u.username AS chat_partner_name,
-        m.text AS last_message,
-        m.time_stamp AS last_message_time
-      FROM messages m
-      LEFT JOIN users u ON u.teacher_id = ? AND u.id = 
-        (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
-      WHERE m.sender_id = ? OR m.recipient_id = ?
-      ORDER BY m.time_stamp DESC
+        chat_partner_id, 
+        MAX(chat_partner_name) AS chat_partner_name,
+        MAX(last_message) AS last_message,
+        MAX(last_message_time) AS last_message_time
+      FROM(
+        SELECT
+          CASE 
+            WHEN m.sender_id = ? THEN m.recipient_id 
+            ELSE m.sender_id 
+          END AS chat_partner_id,
+          u.username AS chat_partner_name,
+          m.text AS last_message,
+          m.time_stamp AS last_message_time
+        FROM messages m
+        LEFT JOIN users u ON u.teacher_id = 
+          (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
+        WHERE m.sender_id = ? OR m.recipient_id = ?
+      ) AS grouped_chat
+      GROUP BY chat_partner_id
+      ORDER BY last_message_time DESC
       ''',
         [
-          widget.userId, widget.userId, widget.userId, widget.userId, widget.userId
+          widget.userId, widget.userId, widget.userId, widget.userId,
         ],
       );
       await conn.close();
