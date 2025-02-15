@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:path/path.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
-import 'NavigationBar/Profiles/teacherProfile/teacher_profile_screen.dart';
+import '../Profiles/teacherProfile/teacher_profile_screen.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'teacher_calendar_screen.dart';
@@ -17,7 +17,7 @@ class TeacherListScreen extends StatelessWidget{
   Future<List<Map<String, dynamic>>> _fetchTeachers(String subject) async {
     final conn = await MySQLHelper.connect();
     final result = await conn.query(
-      'SELECT id, name, bio, subject FROM teachers WHERE subject LIKE ?',
+      'SELECT t.id, t.name, t.bio, t.subject, u.id as user_id FROM teachers t INNER JOIN users u on t.id= u.teacher_id WHERE t.subject LIKE ?',
       ['%$subject%'],
     );
     await conn.close();
@@ -26,6 +26,7 @@ class TeacherListScreen extends StatelessWidget{
       final fields = row.fields;
       return{
         'id': fields['id'],
+        'user_id':fields['user_id'],
         'name': fields['name'] is Uint8List
             ? utf8.decode(fields['name'])
             : fields['name'].toString(),
@@ -209,7 +210,7 @@ class TeacherListScreen extends StatelessWidget{
                 MaterialPageRoute(
                   builder: (context) => TeacherCalendarScreen(
                     alumnoId: alumnoId,
-                    teacherId: teacher['id'],
+                    teacherId: teacher['user_id'],
                   ),
                 ),
               );

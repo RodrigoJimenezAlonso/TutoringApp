@@ -21,35 +21,27 @@ class _ChatListScreenState extends State<ChatListScreen> {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
         '''
-      SELECT 
-        chat_partner_id, 
-        MAX(chat_partner_name) AS chat_partner_name,
-        MAX(last_message) AS last_message,
-        MAX(last_message_time) AS last_message_time
-      FROM(
-        SELECT
-          CASE 
-            WHEN m.sender_id = ? THEN m.recipient_id 
-            ELSE m.sender_id 
+        SELECT 
+          CASE
+            WHEN m.sender_id = ? THEN m.recipient_id
+            ELSE m.sender_id
           END AS chat_partner_id,
           u.username AS chat_partner_name,
-          m.text AS last_message,
-          m.time_stamp AS last_message_time
+          MAX(m.text) AS last_message,
+          MAX(m.time_stamp) AS last_message_time
         FROM messages m
-        LEFT JOIN users u ON u.teacher_id = 
+        LEFT JOIN users u ON u.id = 
           (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
         WHERE m.sender_id = ? OR m.recipient_id = ?
-      ) AS grouped_chat
-      GROUP BY chat_partner_id
-      ORDER BY last_message_time DESC
-      ''',
+        GROUP BY chat_partner_id
+        ORDER BY last_message_time DESC
+        ''',
         [
           widget.userId, widget.userId, widget.userId, widget.userId,
         ],
       );
       await conn.close();
 
-      // Verificar los datos obtenidos en la consulta
       print("Datos obtenidos de la BD: ${result.map((row) => row.fields).toList()}");
 
       return result.map((row) => row.fields).toList();
@@ -58,17 +50,35 @@ class _ChatListScreenState extends State<ChatListScreen> {
       return [];
     }
   }
+  Future<void> _deleteChat(int chatPartnerId)async{
+    try{
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+        'DELETE FROM messages WHERE(sender_id = ? and recipient_id = ?) OR (sender_id = ? and recipient_id = ?) ',
+        [
+          widget.userId,
+          chatPartnerId,
+          chatPartnerId,
+          widget.userId,
+
+        ]
+      );
+      await conn.close();
+    }catch(e){
+      print('Error eliminando el chat: $e');
+    }
+  }
 
   String _formatTime(String timeStamp) {
-    if(timeStamp == null || timeStamp.isEmpty){
+    if (timeStamp == null || timeStamp.isEmpty) {
       return "--:--";
     }
     DateTime time = DateTime.parse(timeStamp);
-    return "${time.hour.toString().padLeft(2, '0')}: ${time.minute.toString().padLeft(2, '0')}";
+    return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
   String _getInitials(String? name) {
-    if(name == null || name.isEmpty){
+    if (name == null || name.isEmpty) {
       return "?";
     }
     List<String> words = name.split(' ');
@@ -89,7 +99,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ),
         elevation: 0,
-
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -99,9 +108,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
             onPressed: () {
               // do something
             },
-          )
+          ),
         ],
-
       ),
       backgroundColor: Colors.grey[100],
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -144,51 +152,91 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ),
             itemBuilder: (context, index) {
               final chat = chats[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue[700],
-                  child: Text(
-                    _getInitials(chat['chat_partner_name']?.toString()),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                title: Text(
-                  chat['chat_partner_name'] ?? "Unknown user",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Text(
-                  chat['last_message'] != null ? chat['last_message'] : 'No Messages Available',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                trailing: Text(
-                  chat['last_message_time'] != null
-                    ? _formatTime(chat['last_message_time'].toString())
-                    : '--:--',
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 12,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        alumnoId: widget.role == 'Student' ? widget.userId : chat['chat_partner_id'],
-                        profesorId: widget.role == 'Professor' ? widget.userId : chat['chat_partner_id'],
+              return Dismissible(
+                  key: Key(chat['chat_partner_id'].toString()),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                          padding: const EdgeInsets.only(right: 20.0),
+                          child: Icon(Icons.delete, color: Colors.white,),
                       ),
                     ),
-                  );
-                },
+                  ),
+                  confirmDismiss: (direction) async {
+                    bool shouldDelete = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Deleting Chat"),
+                          content: Text("Are you sure you want to delete the chat? This action cannot be reversed."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false), // Cancelar
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true), // Confirmar
+                              child: Text("Delete", style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return shouldDelete;
+                  },
+                  onDismissed: (direction){
+                    _deleteChat(chat['chat_partner_id']);
+                    setState(() {});
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blue[700],
+                      child: Text(
+                        _getInitials(chat['chat_partner_name']?.toString()),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      chat['chat_partner_name'] ?? "Unknown user",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      chat['last_message'] != null ? chat['last_message'] : 'No Messages Available',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    trailing: Text(
+                      chat['last_message_time'] != null
+                          ? _formatTime(chat['last_message_time'].toString())
+                          : '--:--',
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 12,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            alumnoId: widget.role == 'Student' ? widget.userId : chat['chat_partner_id'],
+                            profesorId: widget.role == 'Professor' ? widget.userId : chat['chat_partner_id'],
+                          ),
+                        ),
+                      );
+                    },
+                  )
               );
             },
           );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
-import 'NavigationBar/chat/chat_screen.dart';
+import '../chat/chat_screen.dart';
 
 
 class TeacherCalendarScreen extends StatefulWidget {
@@ -28,6 +28,7 @@ class _TeacherCalendarScreenState extends State<TeacherCalendarScreen>{
       'SELECT * FROM availability WHERE teacher_id = ? AND status = "available" ORDER BY date, start_time',
       [widget.teacherId],
     );
+    print('result: $result');
     await conn.close();
     final events = <DateTime, List<NeatCleanCalendarEvent>> {};
     for(var row in result){

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/ArtificialIntelligence/quiz_screen.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
-import 'package:proyecto_rr_principal/screens/teacher_list_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/Search/teacher_list_screen.dart';
 
 
 class SearchScreen extends StatefulWidget {
