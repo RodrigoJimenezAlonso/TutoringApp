@@ -7,7 +7,7 @@ import 'package:proyecto_rr_principal/mysql.dart';
 import 'providers/user_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/settings.dart';
+import 'screens/Settings/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

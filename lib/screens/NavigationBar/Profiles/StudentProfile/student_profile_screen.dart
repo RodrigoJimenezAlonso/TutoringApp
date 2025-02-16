@@ -5,9 +5,12 @@ import 'package:proyecto_rr_principal/auth/login_page.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:proyecto_rr_principal/screens/settings.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 import 'edit_student_profile_screen.dart';
-import '../../../settings.dart';
+import 'package:proyecto_rr_principal/screens/Settings/billing_details_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/help_faqs_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/notification_setting_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final int studentId;
@@ -171,25 +174,40 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   ),
                   title: Text('Billing Details', style: TextStyle(fontSize: 16, color: Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => BillingDetailsScreen()), // Correct navigation
+                    );
+                  },
                 ),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.group, color: Colors.blue),
+                    child: Icon(Icons.notifications, color: Colors.blue),
                   ),
-                  title: Text('User Management', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Notifications', style: TextStyle(fontSize: 16, color: Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NotificationSettingsScreen()),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
                     child: Icon(Icons.info, color: Colors.blue),
                   ),
-                  title: Text('Information', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HelpFAQScreen()), // Correct navigation
+                    );
+                  },
                 ),
                 SizedBox(height: 20),
                 ListTile(

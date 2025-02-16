@@ -1,21 +1,32 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'chat_screen.dart';
 
 class ChatListScreen extends StatefulWidget {
   final int userId;
   final String role;
+  Uint8List? imageBytes;
+
 
   ChatListScreen({
     required this.role,
     required this.userId,
   });
 
+
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
 }
 
+
+
 class _ChatListScreenState extends State<ChatListScreen> {
+  bool _isSearching = false;
+
+
+
   Future<List<Map<String, dynamic>>> _loadChatList() async {
     try {
       final conn = await MySQLHelper.connect();
@@ -27,6 +38,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ELSE m.sender_id
           END AS chat_partner_id,
           u.username AS chat_partner_name,
+          u.profile_picture AS chat_partner_picture,
           MAX(m.text) AS last_message,
           MAX(m.time_stamp) AS last_message_time
         FROM messages m
@@ -50,6 +62,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
       return [];
     }
   }
+
+
   Future<void> _deleteChat(int chatPartnerId)async{
     try{
       final conn = await MySQLHelper.connect();
@@ -68,6 +82,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
       print('Error eliminando el chat: $e');
     }
   }
+
 
   String _formatTime(String timeStamp) {
     if (timeStamp == null || timeStamp.isEmpty) {
@@ -92,22 +107,34 @@ class _ChatListScreenState extends State<ChatListScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.blue[800],
-        title: Text(
-          'Chats',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        title: _isSearching
+            ? TextField(
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: "Search chats...",
+                hintStyle: TextStyle(color: Colors.white70),
+                border: InputBorder.none,
+              ),
+              style: TextStyle(color: Colors.white),
+              onChanged: null,
+            )
+            : Text(
+              'Chats',
+              style: TextStyle(color: Colors.white),
+            ),
         elevation: 0,
         actions: <Widget>[
           IconButton(
             icon: Icon(
-              Icons.search,
+              _isSearching ? Icons.close : Icons.search,
               color: Colors.white,
             ),
             onPressed: () {
-              // do something
+              setState(() {
+                _isSearching = !_isSearching;
+              });
             },
+
           ),
         ],
       ),
@@ -192,7 +219,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     setState(() {});
                   },
                   child: ListTile(
-                    leading: CircleAvatar(
+                    leading: chat['chat_partner_picture'] != null && chat['chat_partner_picture'] is Blob
+                        ? CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: MemoryImage(
+                        Uint8List.fromList((chat['chat_partner_picture'] as Blob).toBytes()),
+                      ),
+                    )
+                        : CircleAvatar(
                       backgroundColor: Colors.blue[700],
                       child: Text(
                         _getInitials(chat['chat_partner_name']?.toString()),
@@ -202,6 +236,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         ),
                       ),
                     ),
+
                     title: Text(
                       chat['chat_partner_name'] ?? "Unknown user",
                       style: TextStyle(
@@ -243,5 +278,26 @@ class _ChatListScreenState extends State<ChatListScreen> {
         },
       ),
     );
+  }
+
+
+  Future<void> _loadPictureData() async {
+    try {
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        '''
+        SELECT u.profile_picture
+        FROM users u
+        WHERE u.id = ?;
+        '''
+        ,
+        [widget.userId],
+      );
+    } catch (e) {
+      print('Error loading student data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar datos: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 }

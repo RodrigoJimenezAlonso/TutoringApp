@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/widget/home_page.dart';
 import '../auth/register_page.dart';
-import '../events.dart';
+import '../screens/NavigationBar/Events/events.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/providers/user_provider.dart';
@@ -189,6 +189,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             fontSize: 18,
                             color: Colors.white,
                           ),
+                        ),
+                      ),
+                      SizedBox(height: 10,),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => RegisterPage()),
+                          );
+                        },
+                        child: Text(
+                          'Already have an account? Log in here',
+                          style: TextStyle(color: Colors.green),
                         ),
                       ),
                     ],
