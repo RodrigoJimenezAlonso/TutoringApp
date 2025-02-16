@@ -4,7 +4,7 @@ import 'package:proyecto_rr_principal/screens/NavigationBar/Events/events.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/chat/message_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Search/search_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/teacher_profile_screen_personal.dart';
-import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen_personal.dart';
 
 class HomePage extends StatefulWidget {
   final int alumnoId;
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       NavigationItem(
         label: 'Student Profile',
         icon: Icons.person,
-        page: StudentProfileScreen(studentId: widget.alumnoId),
+        page: StudentProfileScreenPersonal(studentId: widget.alumnoId),
       ),
     ];
 

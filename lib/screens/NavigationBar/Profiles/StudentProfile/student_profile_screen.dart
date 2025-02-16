@@ -5,12 +5,6 @@ import 'package:proyecto_rr_principal/auth/login_page.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
-import 'edit_student_profile_screen.dart';
-import 'package:proyecto_rr_principal/screens/Settings/billing_details_screen.dart';
-import 'package:proyecto_rr_principal/screens/Settings/help_faqs_screen.dart';
-import 'package:proyecto_rr_principal/screens/Settings/notification_setting_screen.dart';
-import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final int studentId;
@@ -21,13 +15,9 @@ class StudentProfileScreen extends StatefulWidget {
 }
 
 class _StudentProfileScreenState extends State<StudentProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-
   String _name = "";
   String _email = "";
-  File? _image;
   Uint8List? imageBytes;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -80,148 +70,59 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         backgroundColor: Colors.grey[100],
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Profile',
+          'Student Profile',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.school,
-              color: Colors.blue[800],
-            ),
-            onPressed: () {
-              // do something
-            },
-          )
-        ],
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          Center(
-            child: CircleAvatar(
-              radius: 50,
-              backgroundImage: imageBytes != null
-                  ? MemoryImage(imageBytes!)
-                  : null,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 80,
+              backgroundImage: imageBytes != null ? MemoryImage(imageBytes!) : null,
+              child: imageBytes == null ? Icon(Icons.person, size: 80, color: Colors.grey) : null,
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            _name,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          Text(
-            _email,
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          SizedBox(height: 15),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditStudentProfileScreen(studentId: widget.studentId),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[800],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+            SizedBox(height: 20),
+            Text(
+              _name,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             ),
-            child: Text(
-              'Edit Profile',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+            SizedBox(height: 10),
+            Text(
+              _email,
+              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
             ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              children: [
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.settings, color: Colors.blue),
+            SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 30,),
+                  Icon(Icons.lock, color: Colors.black, size: 20),
+                  SizedBox(height: 5), // Espacio entre el texto y el icono
+                  Text(
+                    "Student Data are Secured End to End",
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                    textAlign: TextAlign.center,
+                    softWrap: true,
                   ),
-                  title: Text('Settings', style: TextStyle(fontSize: 16, color: Colors.black)),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SettingsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.account_balance_wallet, color: Colors.blue),
-                  ),
-                  title: Text('Billing Details', style: TextStyle(fontSize: 16, color: Colors.black)),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => BillingDetailsScreen()), // Correct navigation
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.notifications, color: Colors.blue),
-                  ),
-                  title: Text('Notifications', style: TextStyle(fontSize: 16, color: Colors.black)),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NotificationSettingsScreen()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.info, color: Colors.blue),
-                  ),
-                  title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: Colors.black)),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HelpFAQScreen()), // Correct navigation
-                    );
-                  },
-                ),
-                SizedBox(height: 20),
-                ListTile(
-                  leading: Icon(Icons.logout, color: Colors.red),
-                  title: Text(
-                    'Logout',
-                    style: TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                  onTap: _logOut,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

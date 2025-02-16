@@ -17,7 +17,18 @@ class TeacherListScreen extends StatelessWidget{
   Future<List<Map<String, dynamic>>> _fetchTeachers(String subject) async {
     final conn = await MySQLHelper.connect();
     final result = await conn.query(
-      'SELECT t.id, t.name, t.bio, t.subject, u.id as user_id FROM teachers t INNER JOIN users u on t.id= u.teacher_id WHERE t.subject LIKE ?',
+      '''
+      SELECT 
+        t.id, 
+        t.name, 
+        t.bio, 
+        t.subject, 
+        u.id AS user_id, 
+        u.profile_picture 
+      FROM teachers t 
+      INNER JOIN users u on t.id= u.teacher_id 
+      WHERE t.subject LIKE ?
+      ''',
       ['%$subject%'],
     );
     await conn.close();
@@ -36,6 +47,7 @@ class TeacherListScreen extends StatelessWidget{
         'subject': fields['subject'] is Uint8List
             ? utf8.decode(fields['subject'])
             : fields['subject'].toString(),
+        'profile_picture': fields['profile_picture'],
       };
     }).toList();
   }
@@ -178,9 +190,16 @@ class TeacherListScreen extends StatelessWidget{
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: CircleAvatar(
+        leading: teacher['profile_picture'] != null
+            ? CircleAvatar(
+          backgroundColor: Colors.transparent,
+          backgroundImage: MemoryImage(
+            Uint8List.fromList((teacher['profile_picture'] as Blob).toBytes()),
+          ),
+        )
+            : CircleAvatar(
           backgroundColor: Colors.blue,
-          child: Icon(Icons.person, color: Colors.white,),
+          child: Icon(Icons.person, color: Colors.white),
         ),
         title: Text(
           teacher['name'],

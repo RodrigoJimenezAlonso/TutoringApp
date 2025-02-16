@@ -52,6 +52,25 @@ class _ChatListScreenState extends State<ChatListScreen> {
           widget.userId, widget.userId, widget.userId, widget.userId,
         ],
       );
+
+      List<Map<String, dynamic>> chatList = result.map((row) => row.fields).toList();
+
+
+      for (var chat in chatList) {
+        var unreadCountResult = await conn.query(
+            '''
+        SELECT COUNT(*) AS unread_count 
+        FROM messages 
+        WHERE recipient_id = ? AND sender_id = ? AND is_read = 0
+        ''',
+            [widget.userId, chat['chat_partner_id']]
+        );
+
+        chat['unread_count'] = unreadCountResult.isNotEmpty ? unreadCountResult.first['unread_count'] : 0;
+      }
+
+
+
       await conn.close();
 
       print("Datos obtenidos de la BD: ${result.map((row) => row.fields).toList()}");
@@ -81,6 +100,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
     }catch(e){
       print('Error eliminando el chat: $e');
     }
+  }
+
+  Future<void> _markAsRead()async{
+
   }
 
 
@@ -171,13 +194,35 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
           final chats = snapshot.data!;
           return ListView.separated(
-            itemCount: chats.length,
+            itemCount: chats.isNotEmpty ? chats.length + 1 : 1, // Si no hay chats, solo mostramos el texto
             separatorBuilder: (context, index) => Divider(
               color: Colors.grey[300],
               indent: 70,
               endIndent: 10,
             ),
             itemBuilder: (context, index) {
+
+
+              if (chats.isEmpty || index == chats.length) {
+                // Muestra el mensaje solo si la lista está vacía o al final de la lista
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.lock, color: Colors.grey[600],),
+                        SizedBox(width: 8,),
+                        Text(
+                          "Your personal messages are end-to-end encrypted",
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600],),
+                        ),
+                      ],
+                    )
+                  ),
+                );
+              }
+
               final chat = chats[index];
               return Dismissible(
                   key: Key(chat['chat_partner_id'].toString()),
@@ -251,53 +296,68 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         color: Colors.grey[600],
                       ),
                     ),
-                    trailing: Text(
-                      chat['last_message_time'] != null
-                          ? _formatTime(chat['last_message_time'].toString())
-                          : '--:--',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 12,
-                      ),
+                    trailing: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          chat['last_message_time'] != null
+                              ? _formatTime(chat['last_message_time'].toString())
+                              : '--:--',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (chat['unread_count'] > 0)
+                          Container(
+                            margin: EdgeInsets.only(top: 2), // Espacio entre la hora y la burbuja
+                            padding: EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[800],
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Text(
+                              '${chat['unread_count']}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                      ],
                     ),
                     onTap: () {
+                      int alumnoId = widget.userId;
+                      int profesorId = chat['chat_partner_id'];
+                      setState(() {
+                        chat['unread_count'] = 0;
+                      });
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ChatScreen(
-                            alumnoId: widget.role == 'Student' ? widget.userId : chat['chat_partner_id'],
-                            profesorId: widget.role == 'Professor' ? widget.userId : chat['chat_partner_id'],
+                            alumnoId: alumnoId,
+                            profesorId: profesorId,
                           ),
                         ),
                       );
                     },
+
                   )
               );
             },
           );
         },
       ),
+
     );
   }
 
-
-  Future<void> _loadPictureData() async {
-    try {
-      final conn = await MySQLHelper.connect();
-      final result = await conn.query(
-        '''
-        SELECT u.profile_picture
-        FROM users u
-        WHERE u.id = ?;
-        '''
-        ,
-        [widget.userId],
-      );
-    } catch (e) {
-      print('Error loading student data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar datos: $e'), backgroundColor: Colors.red),
-      );
-    }
-  }
 }

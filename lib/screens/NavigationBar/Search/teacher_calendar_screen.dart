@@ -29,6 +29,8 @@ class _TeacherCalendarScreenState extends State<TeacherCalendarScreen>{
       [widget.teacherId],
     );
     print('result: $result');
+    print('Result from database: ${result.map((row) => row.fields).toList()}');
+
     await conn.close();
     final events = <DateTime, List<NeatCleanCalendarEvent>> {};
     for(var row in result){

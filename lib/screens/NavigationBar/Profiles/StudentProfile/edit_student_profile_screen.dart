@@ -6,7 +6,7 @@ import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen_personal.dart';
 import 'package:proyecto_rr_principal/widget/home_page.dart';
 
 

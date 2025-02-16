@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'dart:typed_data';
@@ -147,7 +148,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder( // Se agrega StatefulBuilder para actualizar el estado dentro del diálogo
+        return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: Colors.white,
@@ -487,10 +488,37 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
 
                               TextButton(
                                 child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                onPressed: () => _deleteEvent(context, eventId!),
+                                onPressed: () {
+
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Confirm Deletion"),
+                                        content: Text("Are you sure you want to delete this event? This action cannot be undone."),
+                                        actions: [
+                                          TextButton(
+                                            child: Text("Cancel", style: TextStyle(color: Colors.black)),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text("Delete", style: TextStyle(color: Colors.red)),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              _deleteEvent(context, eventId!);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
                               ),
+
                               TextButton(
-                                child: Text("Close"),
+                                child: Text("Close", style: TextStyle(color: Colors.black),),
                                 onPressed: () => Navigator.pop(context),
                               ),
                             ],
@@ -566,7 +594,32 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                   'Logout',
                   style: TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold),
                 ),
-                onTap: _logOut,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Confirm Logout"),
+                        content: Text("Are you sure you want to log out?"),
+                        actions: [
+                          TextButton(
+                            child: Text("Cancel", style: TextStyle(color: Colors.black)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text("Logout", style: TextStyle(color: Colors.red)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _logOut();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
               SizedBox(height: 20,),
             ],
