@@ -136,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
           SizedBox(height: 20,),
           Expanded(
             child: _messages.isEmpty
-                ? Center(child: Text("No hay mensajes aún."))
+                ? Center(child: Text(""))
                 : ListView.builder(
               controller: scrollcontroller,
               itemCount: _messages.length,
@@ -391,7 +391,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           message['text'] ?? "",
                           style: TextStyle(
                             color: isMe ? Colors.white : Colors.black,
-                            fontSize: 14,
+                            fontSize: 18,
                           ),
                           softWrap: true,
                         ),
@@ -477,7 +477,7 @@ class _ChatScreenState extends State<ChatScreen> {
       } else if (role == 'teacher') {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => TeacherProfileScreen(userId: widget.profesorId)),
+          MaterialPageRoute(builder: (context) => TeacherProfileScreen(teacherId: widget.profesorId, studentId: widget.alumnoId,)),
         );
       }
     }

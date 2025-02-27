@@ -28,30 +28,45 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
 
   Future<List<Map<String, dynamic>>> _loadChatList() async {
+
     try {
       final conn = await MySQLHelper.connect();
       final result = await conn.query(
         '''
-        SELECT 
-          CASE
-            WHEN m.sender_id = ? THEN m.recipient_id
-            ELSE m.sender_id
-          END AS chat_partner_id,
-          u.username AS chat_partner_name,
-          u.profile_picture AS chat_partner_picture,
-          MAX(m.text) AS last_message,
-          MAX(m.time_stamp) AS last_message_time
-        FROM messages m
-        LEFT JOIN users u ON u.id = 
-          (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
-        WHERE m.sender_id = ? OR m.recipient_id = ?
-        GROUP BY chat_partner_id
-        ORDER BY last_message_time DESC
+          SELECT 
+            CASE 
+              WHEN m.sender_id = ? THEN m.recipient_id 
+              ELSE m.sender_id 
+            END AS chat_partner_id,
+            
+            u.username AS chat_partner_name,
+            u.profile_picture AS chat_partner_picture,
+        
+            (SELECT text FROM messages 
+             WHERE (sender_id = chat_partner_id AND recipient_id = ?) 
+                OR (sender_id = ? AND recipient_id = chat_partner_id) 
+             ORDER BY time_stamp DESC 
+             LIMIT 1) AS last_message,
+        
+            MAX(m.time_stamp) AS last_message_time
+        
+          FROM messages m
+          JOIN users u ON u.id = 
+            (CASE WHEN m.sender_id = ? THEN m.recipient_id ELSE m.sender_id END)
+        
+          WHERE m.sender_id = ? OR m.recipient_id = ?
+          GROUP BY chat_partner_id, u.username, u.profile_picture
+          ORDER BY last_message_time DESC
         ''',
         [
-          widget.userId, widget.userId, widget.userId, widget.userId,
+          widget.userId, widget.userId, widget.userId,
+          widget.userId, widget.userId, widget.userId
         ],
       );
+
+      print("Resultados obtenidos de la BD: ${result.map((row) => row.fields).toList()}");
+
+
 
       List<Map<String, dynamic>> chatList = result.map((row) => row.fields).toList();
 

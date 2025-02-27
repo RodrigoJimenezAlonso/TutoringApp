@@ -1,18 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
-import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
-import '../Profiles/teacherProfile/teacher_profile_screen.dart';
+import '../../../providers/user_provider.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'teacher_calendar_screen.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/teacher_profile_screen.dart';
 
-class TeacherListScreen extends StatelessWidget{
+class TeacherListScreen extends StatefulWidget {
   final String subject;
+  final String userEmail;
 
   TeacherListScreen({
     required this.subject,
+    required this.userEmail,
   });
+
+  @override
+  _TeacherListScreenState createState() => _TeacherListScreenState();
+
+}
+
+class _TeacherListScreenState extends State<TeacherListScreen>{
+
+  int? userId;
+
+  @override
+  void initState(){
+    super.initState();
+    _loadUserIdFromMySql();
+
+  }
+
+  Future<void> _loadUserIdFromMySql()async{
+
+    final conn = await MySQLHelper.connect();
+    final result = await conn.query(
+      '''
+      SELECT id FROM users WHERE email = ? AND role  = "student"
+      ''',
+      [widget.userEmail],
+    );
+    await conn.close();
+
+    if(result.isNotEmpty){
+      setState(() {
+        userId = result.first['id'] as int?;
+      });
+    }
+
+  }
+
 
   Future<List<Map<String, dynamic>>> _fetchTeachers(String subject) async {
     final conn = await MySQLHelper.connect();
@@ -90,16 +129,16 @@ class TeacherListScreen extends StatelessWidget{
       appBar: AppBar(
         automaticallyImplyLeading: true,
         iconTheme: IconThemeData(
-          color: Colors.white, //change your color here
+          color: Colors.white,
         ),
-        title: Text('Teachers For $subject', style: TextStyle(
+        title: Text('Teachers For ${widget.subject}', style: TextStyle(
           color: Colors.white,
         ),),
         centerTitle: true,
         backgroundColor: Colors.blue[800],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _fetchTeachers(subject),
+          future: _fetchTeachers(widget.subject),
           builder: (context, snapshot){
             if(snapshot.connectionState == ConnectionState.waiting){
               return _buildLoadingEffect();
@@ -122,7 +161,7 @@ class TeacherListScreen extends StatelessWidget{
             if(teachers.isEmpty){
               return Center(
                 child: Text(
-                    'No teachers found for: $subject',
+                    'No teachers found for: ${widget.subject}',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 18,
@@ -180,7 +219,14 @@ class TeacherListScreen extends StatelessWidget{
     );
   }
 
+
   Widget _buildTeacherCard(BuildContext context, Map<String, dynamic> teacher){
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userID = userProvider.userId;
+    final userRole = userProvider.role;
+
+
     return Card(
       margin: EdgeInsets.symmetric(
         vertical: 8,
@@ -218,18 +264,19 @@ class TeacherListScreen extends StatelessWidget{
         ),
         trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey,),
         onTap: () async {
-          final userID = await getUserIdByEmail('rodrigo2@gmail.com'); // todo: Obtener el userId dinámicamente
           if (userID != null) {
-            final alumnoId = await _fetchAlumnoId(userID);
-            if (alumnoId != null) {
-              final teacherId = teacher['id'] is int ? teacher['id'] : int.tryParse(teacher['id'].toString()) ?? 0;
+            final alumnoId = userID;
 
+            if (alumnoId != null) {
+
+              final teacherId = teacher['id'] is int ? teacher['id'] : int.tryParse(teacher['id'].toString()) ?? 0;
+              print('UserId del estudiante: $userID y el TeacherId del profesor ${teacher['user_id']} ');
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TeacherCalendarScreen(
-                    alumnoId: alumnoId,
-                    teacherId: teacher['user_id'],
+                  builder: (context) => TeacherProfileScreen(
+                      teacherId: teacherId,
+                      studentId: alumnoId
                   ),
                 ),
               );
@@ -247,5 +294,6 @@ class TeacherListScreen extends StatelessWidget{
       ),
     );
   }
+
 
 }

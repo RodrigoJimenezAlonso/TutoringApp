@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
-import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'dart:typed_data';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/edit_teacher_profile_screen_personal.dart';
 import 'package:proyecto_rr_principal/auth/login_page.dart';
@@ -13,6 +11,9 @@ import 'package:proyecto_rr_principal/screens/Settings/billing_details_screen.da
 import 'package:proyecto_rr_principal/screens/Settings/help_faqs_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/notification_setting_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+import 'package:proyecto_rr_principal/screens/NavigationBar/Events/event_automation.dart';
+
+import '../../../../models/event.dart';
 
 
 class TeacherProfileScreenPersonal extends StatefulWidget {
@@ -43,8 +44,6 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     _loadTeacherData();
     _loadEvents();
   }
-
-
 
   Future<void> _loadTeacherInfo()async{
     final conn = await MySQLHelper.connect();
@@ -94,13 +93,85 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     }
   }
 
+  Color _getEventColor(String status){
+    switch(status){
+      case 'available':
+        return Colors.green;
+      case 'not_available':
+        return Colors.red;
+      case 'pending':
+        return Colors.orange;
+      case 'accepted':
+        return Colors.blue;
+      default:
+        return Colors.purple;
+    }
+  }
+
+  void _showChangeStatusDialog(String eventId, String currentState){
+    showDialog(
+        context: context,
+        builder: (context){
+          String selectedStatus = currentState;
+          return AlertDialog(
+            title: Text('Change event status'),
+            content: DropdownButton<String>(
+                value: selectedStatus,
+                onChanged: (String? newValue){
+                  if(newValue != null){
+                    setState(() {
+                      selectedStatus = newValue;
+                    });
+                  }
+                },
+                items: ['available', 'not_available', 'pending', 'accepted']
+                  .map((status)=> DropdownMenuItem(child: Text(status), value: status)).toList(),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: ()=> Navigator.pop(context),
+                  child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                  onPressed: ()async{
+                    final conn = await MySQLHelper.connect();
+                    await conn.query(
+                      'UPDATE events SET status = ? WHERE id = ?',
+                      [
+                        selectedStatus, eventId
+                      ]
+                    );
+                    await conn.close();
+                    _loadEvents();
+                    Navigator.pop(context);
+                  },
+                  child: Text('Save'),
+              )
+            ],
+          );
+        }
+    );
+  }
 
   Future<void> _loadEvents() async {
     final conn = await MySQLHelper.connect();
     final result = await conn.query(
-      'SELECT id, title, description, start_time, end_time FROM events WHERE user_id = ?',
+      'SELECT id, title, description, start_time, end_time, status FROM events WHERE user_id = ?',
       [widget.userId],
     );
+
+    final resultAvailability = await conn.query(
+      '''
+      SELECT date, start_time, end_time, status 
+      FROM availability a INNER JOIN users u ON a.teacher_id = u.teacher_id 
+      WHERE u.id = ? AND a.status = "available"
+      ORDER BY a.date, a.start_time
+      ''',
+      [
+        widget.userId
+      ]
+    );
+
     await conn.close();
 
     Map<DateTime, List<NeatCleanCalendarEvent>> events = {};
@@ -113,7 +184,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
         description: row['description']?.toString() ?? '',
         startTime: startTime,
         endTime: endTime,
-        color: Colors.blue,
+        color: _getEventColor(row['status'].toString()),
         id: row['id'].toString(),
       );
 
@@ -121,11 +192,31 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
       events.putIfAbsent(eventDate, () => []).add(event);
     }
 
+    for (var row in resultAvailability) {
+      DateTime date = DateTime.parse(row['date'].toString());
+      TimeOfDay startTime = TimeOfDay(
+          hour: int.parse(row['start_time'].toString().split(":")[0]),
+          minute: int.parse(row['start_time'].toString().split(":")[1]),
+      );
+      TimeOfDay endTime = TimeOfDay(
+        hour: int.parse(row['end_time'].toString().split(":")[0]),
+        minute: int.parse(row['end_time'].toString().split(":")[1]),
+      );
+      bool isAvailable = row['status'].toString() == 'available';
+      NeatCleanCalendarEvent availabilityEvent = NeatCleanCalendarEvent(
+          isAvailable ? 'Available' : 'Not Available',
+          description: 'Click to check availability',
+          startTime: DateTime(date.year,date.month, date.day, startTime.hour, startTime.minute),
+          endTime: DateTime(date.year,date.month, date.day, endTime.hour, endTime.minute),
+          color: isAvailable ? Colors.green : Colors.red,
+      );
+      DateTime eventDate = DateTime(date.year,date.month, date.day);
+      events.putIfAbsent(eventDate, ()=> []).add(availabilityEvent);
+    }
     setState(() {
       _events = events;
     });
   }
-
 
   Future<void> _logOut() async {
     Navigator.pushAndRemoveUntil(
@@ -145,6 +236,8 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
       minute: selectedStartTime.minute,
     );
 
+    String selectedStatus = "available";
+
     showDialog(
       context: context,
       builder: (context) {
@@ -153,13 +246,8 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
             return AlertDialog(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Text(
-                "Add Event",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.blue[600],
-                ),
+              title: Text("Add Event",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue[600]),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -169,9 +257,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                       controller: titleController,
                       decoration: InputDecoration(
                         labelText: "Title",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                     SizedBox(height: 12),
@@ -179,21 +265,32 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                       controller: descController,
                       decoration: InputDecoration(
                         labelText: "Description",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                     SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedStatus,
+                      onChanged: (String? newValue) {
+                        setState(() => selectedStatus = newValue!);
+                      },
+                      items: ["available", "not_available"]
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value.toUpperCase()),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        labelText: "Status",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    SizedBox(height: 12),
                     OutlinedButton.icon(
                       icon: Icon(Icons.calendar_today, color: Colors.blue[600]),
-                      label: Text(
-                        "Date: ${"${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"}",
+                      label: Text("Date: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                         style: TextStyle(color: Colors.blue[600]),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.blue[600]!),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       onPressed: () async {
                         DateTime? picked = await showDatePicker(
@@ -203,7 +300,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                           lastDate: DateTime(2100),
                         );
                         if (picked != null) {
-                          setState(() => selectedDate = picked); // Actualiza la fecha
+                          setState(() => selectedDate = picked);
                         }
                       },
                     ),
@@ -213,13 +310,8 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                         Expanded(
                           child: OutlinedButton.icon(
                             icon: Icon(Icons.access_time, color: Colors.blue[600]),
-                            label: Text(
-                              "Start: \n${selectedStartTime.format(context)}",
+                            label: Text("Start: \n${selectedStartTime.format(context)}",
                               style: TextStyle(color: Colors.blue[600]),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.blue[600]!),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                             onPressed: () async {
                               TimeOfDay? picked = await showTimePicker(
@@ -227,7 +319,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                                 initialTime: selectedStartTime,
                               );
                               if (picked != null) {
-                                setState(() => selectedStartTime = picked); // Se actualiza la hora de inicio
+                                setState(() => selectedStartTime = picked);
                               }
                             },
                           ),
@@ -236,13 +328,8 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                         Expanded(
                           child: OutlinedButton.icon(
                             icon: Icon(Icons.access_time_filled, color: Colors.blue[600]),
-                            label: Text(
-                              "End: \n${selectedEndTime.format(context)}",
+                            label: Text("End: \n${selectedEndTime.format(context)}",
                               style: TextStyle(color: Colors.blue[600]),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.blue[600]!),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                             onPressed: () async {
                               TimeOfDay? picked = await showTimePicker(
@@ -250,7 +337,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                                 initialTime: selectedEndTime,
                               );
                               if (picked != null) {
-                                setState(() => selectedEndTime = picked); // Se actualiza la hora de finalización
+                                setState(() => selectedEndTime = picked);
                               }
                             },
                           ),
@@ -274,7 +361,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                   onPressed: () async {
                     final conn = await MySQLHelper.connect();
                     await conn.query(
-                      'INSERT INTO events (user_id, title, description, start_time, end_time) VALUES (?, ?, ?, ?, ?)',
+                      'INSERT INTO events (user_id, title, description, start_time, end_time, status, student_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
                       [
                         widget.userId,
                         titleController.text,
@@ -285,6 +372,8 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                         DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
                             selectedEndTime.hour, selectedEndTime.minute)
                             .toIso8601String(),
+                        selectedStatus,
+                        null
                       ],
                     );
                     await conn.close();
@@ -300,8 +389,6 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,7 +403,52 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
           style: TextStyle(color: Colors.black),
         ),
         actions: [
-          IconButton(icon: Icon(Icons.add), color: Colors.black, onPressed: _showAddEventDialog),
+          PopupMenuButton<int>(
+            icon: Icon(Icons.add, color: Colors.black),
+            color: Colors.grey[800], // Fondo oscuro como en el ejemplo de Chrome
+            elevation: 10,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            offset: Offset(0,50),
+            onSelected: (int choice) {
+              if (choice == 0) {
+                _showAddEventDialog();
+              } else if (choice == 1) {
+                //_navigateToEventAutomation();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              PopupMenuItem<int>(
+                value: 0,
+                child: ListTile(
+                  leading: Icon(Icons.flash_on, color: Colors.white),
+                  title: Text('One-time event', style: TextStyle(color: Colors.white)),
+                  onTap: _showAddEventDialog,
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
+                child: ListTile(
+                  leading: Icon(Icons.smart_toy_rounded, color: Colors.white),
+                  title: Text('Event automation', style: TextStyle(color: Colors.white)),
+                    onTap: ()async{
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventAutomationPage(userId: widget.userId),
+                        ),
+                      ).then((value) {
+                        if (value == true) {
+                          _loadEvents();
+                        }
+                      });
+                    },
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -429,101 +561,112 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                       todayButtonText: 'Today',
                       expandableDateFormat: 'EEEE, dd MMMM yyyy',
                       onEventSelected: (event) {
-                        String? eventId = getEventId(event);
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Meeting with -name- for -subject- ${event.summary}',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                        if(event.summary == 'Available' || event.summary == 'Not Available'){
+                          _toggleAvailability(event);
+
+                        }else if(event.summary == 'Pending' || event.summary == 'Canceled'){
+                            //_handlePendingOrCanceled(event);
+                          print('Evento cancelado o pendiente');
+                          }else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Meeting with -name- for -subject- ${event.summary}',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
                                   ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "Event Details",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildEventDetail(Icons.description, "Description", event.description ?? "No description"),
+                                  _buildEventDetail(Icons.access_time, "Start Time", _formatDateTime(event.startTime)),
+                                  _buildEventDetail(Icons.access_time_filled, "End Time", _formatDateTime(event.endTime)),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: Text("Edit", style: TextStyle(color: Colors.green)),
+                                  onPressed: () {
+                                    String? eventId = getEventId(event);
+                                    if (eventId != null) {
+                                      final selectedEvent = {
+                                        'id': int.parse(eventId),
+                                        'title': event.summary,
+                                        'description': event.description ?? '',
+                                        'start_time': event.startTime.toIso8601String(),
+                                        'end_time': event.endTime.toIso8601String(),
+                                      };
+                                      _editEvent(context, selectedEvent);
+                                    } else {
+                                      print("Error: El evento no tiene un ID válido.");
+                                    }
+                                  },
                                 ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Event Details",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
-                                  ),
+
+                                TextButton(
+                                  child: Text("Delete", style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text("Confirm Deletion"),
+                                          content: Text("Are you sure you want to delete this event? This action cannot be undone."),
+                                          actions: [
+                                            TextButton(
+                                              child: Text("Cancel", style: TextStyle(color: Colors.black)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: Text("Delete", style: TextStyle(color: Colors.red)),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                String? eventId = getEventId(event);
+                                                if (eventId != null) {
+                                                  _deleteEvent(context, eventId);
+                                                } else {
+                                                  print("Error: No se pudo obtener el ID del evento.");
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+
+                                TextButton(
+                                  child: Text("Close", style: TextStyle(color: Colors.black)),
+                                  onPressed: () => Navigator.pop(context),
                                 ),
                               ],
                             ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildEventDetail(Icons.description, "Description", event.description ?? "No description"),
-                                _buildEventDetail(Icons.access_time, "Start Time", _formatDateTime(event.startTime)),
-                                _buildEventDetail(Icons.access_time_filled, "End Time", _formatDateTime(event.endTime)),
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text("Edit", style: TextStyle(color: Colors.green)),
-                                onPressed: () {
-                                  String? eventId = getEventId(event);
-                                  if (eventId != null) {
-                                    final selectedEvent = {
-                                      'id': int.parse(eventId),
-                                      'title': event.summary,
-                                      'description': event.description ?? '',
-                                      'start_time': event.startTime.toIso8601String(),
-                                      'end_time': event.endTime.toIso8601String(),
-                                    };
-                                    _editEvent(context, selectedEvent);
-                                  } else {
-                                    print("Error: El evento no tiene un ID válido.");
-                                  }
-                                },
-                              ),
-
-                              TextButton(
-                                child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                onPressed: () {
-
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text("Confirm Deletion"),
-                                        content: Text("Are you sure you want to delete this event? This action cannot be undone."),
-                                        actions: [
-                                          TextButton(
-                                            child: Text("Cancel", style: TextStyle(color: Colors.black)),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                              _deleteEvent(context, eventId!);
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-
-                              TextButton(
-                                child: Text("Close", style: TextStyle(color: Colors.black),),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                        );
+                          );
+                        }
                       },
                     ),
                   ),
@@ -629,6 +772,33 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     );
   }
 
+  Future<void> _toggleAvailability(NeatCleanCalendarEvent event)async{
+    final conn = await MySQLHelper.connect();
+    DateTime eventDate = event.startTime;
+    String startTime = "${eventDate.hour} : ${eventDate.minute}";
+    String endTime = "${event.endTime.hour} : ${event.endTime.minute}";
+    final result = await conn.query(
+      'SELECT a.id , a.status FROM availability a INNER JOIN users u ON a.teacher_id = u.teacher_id WHERE u.id = ? AND a.date = ? AND a.start_time = ? AND a.end_time = ?',
+      [
+        widget.userId, eventDate.toIso8601String().split("t")[0], startTime, endTime
+      ]
+    );
+    if(result.isNotEmpty){
+      int availabilityId = result.first['id'];
+      String newStatus = (result.first['status'] == 'available') ? 'not_available' : 'available';
+      await conn.query(
+        'UPDATE availability SET status = ? WHERE id = ?',
+        [
+          newStatus, availabilityId
+        ]
+      );
+      print('ENTRANDO EN EL IF DEL TOGGLEAVAILABILITY');
+    }
+
+    await conn.close();
+    _loadEvents();
+  }
+
   List<NeatCleanCalendarEvent> getSelectedDayEvents() {
     return _selectedDate != null
         ? _events[_selectedDate] ?? []
@@ -673,10 +843,6 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     return "${dateTime.day}/${dateTime.month}/${dateTime.year} - ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
   }
 
-
-
-
-
   Future<void> _deleteEvent(BuildContext context, String eventId) async {
     try {
       final conn = await MySQLHelper.connect();
@@ -704,14 +870,14 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     }
   }
 
-
-
   Future<void> _editEvent(BuildContext context, Map<String, dynamic> eventData) async {
     final titleController = TextEditingController(text: eventData['title']);
     final descriptionController = TextEditingController(text: eventData['description']);
 
     DateTime selectedStartTime = DateTime.parse(eventData['start_time']);
     DateTime selectedEndTime = DateTime.parse(eventData['end_time']);
+    String initialStatus = eventData['status'] ?? 'available';
+    bool isAvailable = initialStatus == 'available';
 
     showDialog<void>(
       context: context,
@@ -719,11 +885,9 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
             return AlertDialog(
-              title: Text('Edit Event',
-                style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                ),
+              title: Text(
+                'Edit Event',
+                style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -752,6 +916,19 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                         setDialogState(() => selectedEndTime = newDateTime);
                       },
                     ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Available', style: TextStyle(fontSize: 16)),
+                        Switch(
+                          value: isAvailable,
+                          onChanged: (value) {
+                            setDialogState(() => isAvailable = value);
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -763,28 +940,30 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                 ElevatedButton(
                   child: Text('Save'),
                   onPressed: () async {
+                    final conn = await MySQLHelper.connect();
                     try {
-                      final conn = await MySQLHelper.connect();
                       String formattedStartTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedStartTime);
                       String formattedEndTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(selectedEndTime);
+                      String availabilityStatus = isAvailable ? 'available' : 'not_available';
 
                       await conn.query(
-                        'UPDATE events SET title = ?, description = ?, start_time = ?, end_time = ? WHERE id = ?',
+                        'UPDATE events SET title = ?, description = ?, start_time = ?, end_time = ?, status = ? WHERE id = ?',
                         [
                           titleController.text,
                           descriptionController.text,
                           formattedStartTime,
                           formattedEndTime,
+                          availabilityStatus,
                           eventData['id'],
                         ],
                       );
-
                       Navigator.pop(context);
                       Navigator.pop(context, true);
                       _loadEvents();
-
                     } catch (e) {
-                      print('Error updating events: $e');
+                      print('Error updating event: $e');
+                    } finally {
+                      await conn.close();
                     }
                   },
                 ),
@@ -795,9 +974,6 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
       },
     );
   }
-
-
-
 
   Widget _buildTextField(TextEditingController controller, String label){
     return TextField(
@@ -815,7 +991,6 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
       ),
     );
   }
-
 
   Widget _buildDateTimePicker(
       BuildContext context,

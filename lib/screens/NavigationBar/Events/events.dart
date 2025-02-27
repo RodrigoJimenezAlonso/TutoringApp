@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../datePicker.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
@@ -20,6 +21,36 @@ class _EventsControllerState extends State<EventsController> {
   void initState() {
     super.initState();
     _fetchEvents();
+    _startCleaningTimer();
+  }
+
+  void _startCleaningTimer(){
+    Timer.periodic(Duration(hours: 1), (timer){
+      _cleanOldEvents();
+    });
+  }
+
+  Future<void> _cleanOldEvents()async{
+    try{
+      final conn = await MySQLHelper.connect();
+      await conn.query('SET SQL_SAFE_UPDATES = 0',);
+
+      await conn.query(
+        'UPDATE events SET status = "finished" WHERE status != "finished" AND end_time < DATE_SUB(NOW(), INTERVAL 2 HOUR)',
+      );
+      await conn.query(
+        'DELETE FROM events WHERE end_time < DATE_SUB(NOW(), INTERVAL 1 WEEK)'
+      );
+      await conn.query('SET SQL_SAFE_UPDATES = 1',);
+
+
+      await conn.close();
+      print('Eventos actualizados y eliminados correctamente');
+
+
+    }catch(e){
+      print('Error eliminando eventos pasados: $e');
+    }
   }
 
   Future<void> _fetchEvents() async {
@@ -45,15 +76,15 @@ class _EventsControllerState extends State<EventsController> {
 
       // Lógica de la consulta según el rol
       if (role == 'teacher') {
-        query = "SELECT id, title, description, "
+        query = "SELECT id, title, description, status, "
             "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS start_time,"
             "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS end_time "
-            "FROM events WHERE user_id = ?";
+            "FROM events WHERE user_id = ? AND status IN( 'available', 'accepted', 'pending')";
       } else if (role == 'student') {
-        query = "SELECT id, title, description, "
-            "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS start_time,"
-            "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%y:%s') AS CHAR) AS end_time "
-            "FROM events WHERE user_id = ?";
+        query = "SELECT id, title, description, status, "
+            "CAST(DATE_FORMAT(start_time, '%Y-%m-%dT%H:%i:%s') AS CHAR) AS start_time,"
+            "CAST(DATE_FORMAT(end_time, '%Y-%m-%dT%H:%i:%s') AS CHAR) AS end_time "
+            "FROM events WHERE student_id = ? AND status IN('accepted', 'pending')";
       }
 
       final result = await conn.query(query, params);
@@ -69,13 +100,13 @@ class _EventsControllerState extends State<EventsController> {
             if (startTimeString.isEmpty || endTimeString.isEmpty) {
               throw Exception('Empty start_time or end_time for row: $row');
             }
-
             return {
               'id': row['id'] ?? 0,
               'title': row['title']?.toString() ?? 'No Title',
               'description': row['description']?.toString() ?? 'No description',
               'start_time': DateTime.tryParse(row['start_time']?.toString() ?? '') ?? DateTime.now(),
               'end_time': DateTime.tryParse(row['end_time']?.toString() ?? '') ?? DateTime.now(),
+              'status': row['status']?.toString() ?? 'available',
             };
           } catch (e) {
             print('Error parsing DateTime for row: $row, error: $e');
@@ -173,7 +204,7 @@ class _EventsControllerState extends State<EventsController> {
                   final conn = await MySQLHelper.connect();
                   if (eventToEdit == null) {
                     await conn.query(
-                      'INSERT INTO events(title, description, start_time, end_time, user_id) VALUES(?,?,?,?,?)',
+                      'INSERT INTO events(title, description, start_time, end_time, user_id, status) VALUES(?,?,?,?,?, "available"), (INSERT INTO events(title, description, start_time, end_time, user_id, status) VALUES(?,?,?,?,?, "pending")',
                       [
                         title,
                         description,
@@ -260,7 +291,6 @@ class _EventsControllerState extends State<EventsController> {
     );
   }
 
-
   Widget _buildLoadingEffect(){
     return ListView.builder(
         padding: EdgeInsets.all(12),
@@ -324,69 +354,186 @@ class _EventsControllerState extends State<EventsController> {
     );
   }
 
-  Widget _buildEventList(){
-    return ListView.builder(
-      padding: EdgeInsets.all(12),
-        itemCount: events.length,
-        itemBuilder: (context, index){
-          final event = events[index];
-          final formatedDate = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(event['start_time']);
+  Widget _buildEventList() {
 
-          return Card(
-            margin: EdgeInsets.symmetric(
-              vertical: 8,
-              horizontal: 16,
+    final role = Provider.of<UserProvider>(context, listen: false).role;
+
+    List<Map<String, dynamic>> createdEvents = events.where((
+        event) => event['status'] == 'available').toList();
+    List<Map<String, dynamic>> acceptedEvents = events.where((
+        event) => event['status'] == 'accepted').toList();
+    List<Map<String, dynamic>> pendingEvents = events.where((
+        event) => event['status'] == 'pending').toList();
+
+    return ListView(
+      children: [
+        if(role == 'teacher')...[
+          _buildEventCard('Pending events', pendingEvents),
+          _buildEventCard('Accepted events', acceptedEvents),
+          _buildEventCard('Created events', createdEvents)
+        ]else if(role == 'student')...[
+          _buildEventCard('Waiting for confirmation', pendingEvents),
+          _buildEventCard('Your accepted events', acceptedEvents),
+        ]
+      ],
+    );
+  }
+
+  Widget _buildEventCard(String title, List<Map<String, dynamic>> events){
+    if(events.isEmpty) return SizedBox.shrink();
+
+    return Card(
+      margin: EdgeInsets.all(12),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(16),
-              leading: CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: Icon(Icons.event, color: Colors.white,),
-
-              ),
-              title: Text(
-                event['title'],
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              subtitle: Text(
-                event['description'],
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              trailing: Text(
-                formatedDate,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.blueGrey,
-                ),
-              ),
-
-              onTap: ()async{
-                final update = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context)=>EventDetailScreen(
-                            event: event
-                        ),
-                    ),
-                );
-                if(update!= null){
-                  await _fetchEvents();
+            Divider(),
+            ListView.builder(
+                itemCount: events.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context , index){
+                  final event = events[index];
+                  return _buildEventItem(event);
                 }
-              },
+            )
+          ],
+        ),
+      ),
+    );
 
+
+  }
+
+  Widget _buildEventItem(Map<String, dynamic> event){
+    final formattedDate = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(event['start_time']);
+    Color statusColor;
+    if(event['status'] == 'pending'){
+      statusColor = Colors.orange;
+    }else if(event['status'] == 'accepted'){
+      statusColor = Colors.blue;
+    }else{
+      statusColor = Colors.green;
+    }
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(
+        vertical: 8,
+      ),
+      leading: CircleAvatar(
+        backgroundColor: Colors.blue,
+        child: Icon(
+          Icons.event,
+          color: Colors.white,
+        ),
+      ),
+      title: Text(
+        event['title'],
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event['description'],
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 5,),
+          Text(
+            formattedDate,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.blueGrey,
             ),
+          ),
+        ],
+      ),
+      trailing: Text(
+        event['status'].toUpperCase(),
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: statusColor
+        ),
+      ),
+      onTap: () async {
+        if(event['status'] == 'pending'){
+          _showConfirmButton(context, event);
+        }else{
+          final update = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EventDetailScreen(event: event),
+            ),
+          );
+          if (update != null) {
+            await _fetchEvents();
+          }
+        }
+      },
+    );
+
+  }
+
+  void _showConfirmButton(BuildContext context, Map<String, dynamic> event){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text('Confirm class?'),
+            content: Text('Are you sure you want to do this class?'),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')
+              ),
+              ElevatedButton(
+                  onPressed: ()async{
+                    await _confirmEvent(event['id']);
+                    Navigator.pop(context);
+                    await _fetchEvents();
+                  },
+                  child: Text('Confirm'),
+              )
+            ],
           );
         }
     );
   }
+
+  Future<void> _confirmEvent(int eventId)async{
+    try{
+      final conn = await MySQLHelper.connect();
+      await conn.query(
+        'UPDATE events SET status = "accepted" WHERE id = ?',
+        [eventId]
+      );
+      await conn.close();
+      print('Evento confirmado con id = $eventId');
+    }catch(e){
+      print('No se pudo aceptar el evento = $e');
+    }
+  }
+
 }
+
+
+
+

@@ -22,76 +22,109 @@ class _TeacherCalendarScreenState extends State<TeacherCalendarScreen>{
 
   Map<DateTime, List<NeatCleanCalendarEvent>> _events = {};
 
-  Future<void> _fetchAvailability() async{
-    final conn = await MySQLHelper.connect();
-    final result = await conn.query(
-      'SELECT * FROM availability WHERE teacher_id = ? AND status = "available" ORDER BY date, start_time',
-      [widget.teacherId],
-    );
-    print('result: $result');
-    print('Result from database: ${result.map((row) => row.fields).toList()}');
+  Future<void> _fetchAvailability() async {
+    try {
+      final conn = await MySQLHelper.connect();
+      print('Conectando a la base de datos...');
 
-    await conn.close();
-    final events = <DateTime, List<NeatCleanCalendarEvent>> {};
-    for(var row in result){
-      final date = (row['date'] as DateTime).toLocal();
-      final startTime = row['start_time'] as Duration;
-      final endTime = row['end_time'] as Duration;
-      final availabilityId = row['id'];
-
-      final eventStartTime = DateTime(
-        date.year,
-        date.month,
-        date.day,
-      ).add(startTime);
-
-      final eventEndTime = DateTime(
-        date.year,
-        date.month,
-        date.day,
-      ).add(endTime);
-
-      final event = NeatCleanCalendarEvent(
-        'Available Slot',
-        startTime: eventStartTime,
-        endTime: eventEndTime,
-        description: availabilityId.toString(),
-        color: Colors.blue,
+      final result = await conn.query(
+        '''
+        SELECT * FROM events 
+        WHERE user_id = ? AND status = "available"
+        ORDER BY start_time
+        ''',
+        [widget.teacherId],
       );
 
-      if(!events.containsKey(date)){
-        events[date] = [];
+      print('Consulta ejecutada para el teacherId: ${widget.teacherId}');
+      print('Número de eventos encontrados: ${result.length}');
+
+      if (result.isEmpty) {
+        print('No se encontraron eventos disponibles para este profesor.');
       }
-      events[date]!.add(event);
+
+      await conn.close();
+
+      final events = <DateTime, List<NeatCleanCalendarEvent>>{};
+
+      for (var row in result) {
+        final startTime = row['start_time'] as DateTime;
+        final endTime = row['end_time'] as DateTime;
+        final availabilityId = row['id'];
+        final eventStatus = row['status'];
+
+        /*if(endTime.isBefore(DateTime.now())){
+          if(eventStatus != 'finished'){
+            await conn.query(
+              'UPDATE events SET status = "finished" WHERE id = ?',
+              [
+                availabilityId
+              ]
+            );
+          }
+        }*/
+
+        final event = NeatCleanCalendarEvent(
+          'Available Slot',
+          startTime: startTime,
+          endTime: endTime,
+          description: availabilityId.toString(),
+          color: Colors.blue,
+        );
+
+        final eventDate = DateTime(startTime.year, startTime.month, startTime.day);
+
+        if (!events.containsKey(eventDate)) {
+          events[eventDate] = [];
+        }
+        events[eventDate]!.add(event);
+      }
+
+      print('Eventos cargados antes de setState: ${events.length}');
+
+      setState(() {
+        _events = events;
+      });
+
+    } catch (e) {
+      print('Error al obtener la disponibilidad: $e');
     }
-    setState(() {
-      _events = events;
-    });
   }
 
-  Future<void> _bookClass(int availabilityId)async{
-    final conn = await MySQLHelper.connect();
-    try{
+
+  Future<void> _bookClass(int availabilityId) async {
+    try {
+      final conn = await MySQLHelper.connect();
+      print('Actualizando el estado del evento con id: $availabilityId');
+
       await conn.query(
-        'UPDATE availability SET status = "booked" WHERE id = ?',
+        'UPDATE events SET status = "pending" WHERE id = ?',
         [availabilityId],
       );
       await conn.close();
+
+      print('Clase reservada correctamente');
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Class Successfully Booked!'),
-          )
+        SnackBar(
+          content: Text('Waiting for teacher to accept the event!'),
+        ),
       );
+
       await _fetchAvailability();
-    }catch(e){
-      print('Error Booking Class $e');
+
+      setState(() {
+      });
+
+    } catch (e) {
+      print('Error al reservar la clase: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error Booking Class, please try again!'),
-          )
+        SnackBar(
+          content: Text('Error Booking Class, please try again!'),
+        ),
       );
     }
   }
+
 
   @override
   void initState(){
@@ -159,17 +192,17 @@ class _TeacherCalendarScreenState extends State<TeacherCalendarScreen>{
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: (){
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context)=>ChatScreen(
-                      alumnoId: widget.alumnoId,
-                      profesorId: widget.teacherId,
-                    ),
-                )
-            );
-          },
+        onPressed: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context)=>ChatScreen(
+                  alumnoId: widget.alumnoId,
+                  profesorId: widget.teacherId,
+                ),
+              )
+          );
+        },
         child: Icon(Icons.chat),
         backgroundColor: Colors.blue,
         tooltip: 'Chat With Teacher',

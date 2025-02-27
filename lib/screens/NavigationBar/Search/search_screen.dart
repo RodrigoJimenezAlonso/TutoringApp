@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/ArtificialIntelligence/quiz_screen.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Search/teacher_list_screen.dart';
+import '../../../providers/user_provider.dart';
+import 'create_subject.dart';
 
 
 class SearchScreen extends StatefulWidget {
+  final String userEmail;
+
+  SearchScreen({
+    required this.userEmail
+});
+
   @override
   _SearchScreenState createState()=> _SearchScreenState();
 }
 
+
 class _SearchScreenState extends State<SearchScreen> {
+  String? userRole;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserRole();
+  }
+
 
   String query = '';
   final List<String> subjects = [
@@ -55,18 +74,16 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.school,
-              color: Colors.blue[800],
+          if(userRole == 'teacher')
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () async {
+                final selectedDate = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateSubjectScreen()),
+                );
+              },
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QuizScreen()),
-              );
-            },
-          )
         ],
       ),
       body: Column(
@@ -108,7 +125,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context)=> TeacherListScreen(subject:subject)
+                                  builder: (context)=> TeacherListScreen(subject:subject, userEmail: widget.userEmail,)
                               ),
                           );
                         },
@@ -160,4 +177,31 @@ class _SearchScreenState extends State<SearchScreen> {
         }
     );
   }
+
+  Future<void> _getUserRole() async {
+    try {
+      final userId = Provider.of<UserProvider>(context, listen: false).userId;
+
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT role FROM users WHERE id = ?',
+        [userId], // 👈 Ahora usa el userId del Provider
+      );
+
+      if (result.isNotEmpty) {
+        setState(() {
+          userRole = result.first.fields['role'];
+        });
+      }
+
+      await conn.close();
+    } catch (e) {
+      print("Error obteniendo el rol del usuario: $e");
+    }
+  }
+
+
+
+
+
 }
