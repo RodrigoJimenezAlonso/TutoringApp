@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'dart:typed_data';
@@ -12,6 +13,8 @@ import 'package:proyecto_rr_principal/screens/Settings/help_faqs_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/notification_setting_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Events/event_automation.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
 
 import '../../../../models/event.dart';
 
@@ -32,6 +35,9 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
   String bio = '';
   String _name = "";
   String _email = "";
+  String studentName = "";
+  int eventId = 0;
+  int studentId = 0;
   Uint8List? imageBytes;
   final ImagePicker _picker = ImagePicker();
   DateTime? _selectedDate;
@@ -226,6 +232,80 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
     );
   }
 
+  Future<void> _loadStudentSharingMeeting(int eventId) async {
+    try {
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+          'SELECT student_id FROM events WHERE id = ?',
+          [eventId]
+      );
+
+      if (result.isEmpty || result.first['student_id'] == null) {
+        setState(() {
+          studentId = 0;
+          studentName = "-student-";
+        });
+        await conn.close();
+        return;
+      }
+
+      final data = result.first;
+      int tempStudentId = data['student_id'];
+
+      setState(() {
+        studentId = tempStudentId;
+      });
+
+      await conn.close();
+
+      if (studentId > 0) {
+        await _studentIdFromEvent();
+      }
+
+    } catch (e) {
+      print('Error loading student ID: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar datos: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _studentIdFromEvent() async {
+    if (studentId == 0) {
+      return;
+    }
+
+    try {
+      final conn = await MySQLHelper.connect();
+      final result = await conn.query(
+        'SELECT username FROM users WHERE id = ?',
+        [studentId],
+      );
+
+      await conn.close();
+
+      if (result.isEmpty) {
+        setState(() {
+          studentName = "Unknown";
+        });
+        return;
+      }
+
+      final data = result.first;
+      String tempStudentName = data['username'] ?? "Unknown";
+
+      setState(() {
+        studentName = tempStudentName;
+      });
+
+    } catch (e) {
+      print('Error loading student name: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar el nombre del estudiante: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   void _showAddEventDialog() {
     TextEditingController titleController = TextEditingController();
     TextEditingController descController = TextEditingController();
@@ -391,21 +471,22 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[100],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
         elevation: 0,
         centerTitle: true,
         title: Text(
           'Teacher Profile',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.white : Colors.black),
         ),
         actions: [
           PopupMenuButton<int>(
-            icon: Icon(Icons.add, color: Colors.black),
-            color: Colors.grey[800], // Fondo oscuro como en el ejemplo de Chrome
+            icon: Icon(Icons.add, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black),
+            color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey[800], // Fondo oscuro como en el ejemplo de Chrome
             elevation: 10,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -422,16 +503,16 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
               PopupMenuItem<int>(
                 value: 0,
                 child: ListTile(
-                  leading: Icon(Icons.flash_on, color: Colors.white),
-                  title: Text('One-time event', style: TextStyle(color: Colors.white)),
+                  leading: Icon(Icons.flash_on, color: themeProvider.isDarkMode == true ? Colors.black : Colors.white),
+                  title: Text('One-time event', style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.black : Colors.white)),
                   onTap: _showAddEventDialog,
                 ),
               ),
               PopupMenuItem<int>(
                 value: 1,
                 child: ListTile(
-                  leading: Icon(Icons.smart_toy_rounded, color: Colors.white),
-                  title: Text('Event automation', style: TextStyle(color: Colors.white)),
+                  leading: Icon(Icons.smart_toy_rounded, color: themeProvider.isDarkMode == true ? Colors.black : Colors.white),
+                  title: Text('Event automation', style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.black : Colors.white)),
                     onTap: ()async{
                       Navigator.pop(context);
                       Navigator.push(
@@ -537,7 +618,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: themeProvider.isDarkMode == true ? Colors.grey[600] : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -556,11 +637,18 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                       eventDoneColor: Colors.green,
                       selectedColor: Colors.purple,
                       todayColor: Colors.red,
-                      eventColor: Colors.grey,
+                      eventColor: themeProvider.isDarkMode == true ? Colors.black : Colors.grey,
                       locale: 'en_US',
                       todayButtonText: 'Today',
                       expandableDateFormat: 'EEEE, dd MMMM yyyy',
-                      onEventSelected: (event) {
+                      onEventSelected: (event)async {
+                        int? eventId = int.tryParse(event.id.toString()); // Convierte el ID a entero si es posible
+                        if (eventId != null) {
+                          await _loadStudentSharingMeeting(eventId); // Esperamos que cargue el nombre
+                        } else {
+                          print("Error: No se pudo obtener el ID del evento.");
+                        }
+                        _studentIdFromEvent();
                         if(event.summary == 'Available' || event.summary == 'Not Available'){
                           _toggleAvailability(event);
 
@@ -577,7 +665,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Meeting with -name- for -subject- ${event.summary}',
+                                    studentName.isNotEmpty ? 'Meeting with $studentName for $subject \n\nEvent title: ${event.summary}' : 'Meeting with -student- for $subject \n\nEvent title: ${event.summary}',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -590,7 +678,7 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.grey[600],
+                                      color: themeProvider.isDarkMode == true ? Colors.black : Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -677,10 +765,10 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue.withOpacity(0.2),
-                  child: Icon(Icons.settings, color: Colors.blue),
+                  child: Icon(Icons.settings, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                 ),
-                title: Text('Settings', style: TextStyle(fontSize: 16, color: Colors.black)),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+                title: Text('Settings', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
+                trailing: Icon(Icons.arrow_forward_ios, color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -691,10 +779,10 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue.withOpacity(0.2),
-                  child: Icon(Icons.account_balance_wallet, color: Colors.blue),
+                  child: Icon(Icons.account_balance_wallet, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                 ),
-                title: Text('Billing Details', style: TextStyle(fontSize: 16, color: Colors.black)),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+                title: Text('Billing Details', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
+                trailing: Icon(Icons.arrow_forward_ios, color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -705,10 +793,10 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue.withOpacity(0.2),
-                  child: Icon(Icons.notifications, color: Colors.blue),
+                  child: Icon(Icons.notifications, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                 ),
-                title: Text('Notifications', style: TextStyle(fontSize: 16, color: Colors.black)),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+                title: Text('Notifications', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
+                trailing: Icon(Icons.arrow_forward_ios, color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -719,10 +807,10 @@ class _TeacherProfileScreenPersonalState extends State<TeacherProfileScreenPerso
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue.withOpacity(0.2),
-                  child: Icon(Icons.info, color: Colors.blue),
+                  child: Icon(Icons.info, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                 ),
-                title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: Colors.black)),
-                trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+                title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
+                trailing: Icon(Icons.arrow_forward_ios, color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,

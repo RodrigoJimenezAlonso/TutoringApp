@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:provider/provider.dart';
 import 'dart:typed_data';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/video_call_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/teacher_profile_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
 
 class ChatScreen extends StatefulWidget {
   final int alumnoId;
@@ -80,20 +83,20 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     String channelName = '${widget.alumnoId} - ${widget.profesorId}';
     print("Cargando mensajes entre alumno ID: ${widget.alumnoId} y profesor ID: ${widget.profesorId}");
-
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         automaticallyImplyLeading: true,
         iconTheme: IconThemeData(
-          color: Colors.black, //change your color here
+          color: themeProvider.isDarkMode == true ? Colors.white : Colors.black, //change your color here
         ),
-        backgroundColor: Colors.grey[200],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.grey[200],
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: Colors.white,
+              backgroundColor: themeProvider.isDarkMode == true ? Colors.white : Colors.white,
               backgroundImage: professorProfilePicture != null
                   ? MemoryImage(professorProfilePicture!)
                   : null,
@@ -106,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onTap: _navigateToProfileScreen,
               child: Text(
                 professorUserName ?? 'Cargando...',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
               ),
             )
 
@@ -114,7 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.video_call, color: Colors.black),
+            icon: Icon(Icons.video_call, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black),
             onPressed: () {
               Navigator.push(
                 context,
@@ -130,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      backgroundColor: Color(0xFFECE5DD),
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Color(0xFFECE5DD),
       body: Column(
         children: [
           SizedBox(height: 20,),
@@ -149,12 +152,12 @@ class _ChatScreenState extends State<ChatScreen> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              color: Colors.grey[200],
+              color: themeProvider.isDarkMode == true ? Colors.black : Colors.grey[200],
               padding: EdgeInsets.all(8),
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.add, color: Colors.black, size: 30,),
+                    icon: Icon(Icons.add, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black, size: 30,),
                     onPressed: _pickImage,
                   ),
                   Expanded(
@@ -165,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: 'Type your message...',
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: themeProvider.isDarkMode == true ? Colors.grey[800] : Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,

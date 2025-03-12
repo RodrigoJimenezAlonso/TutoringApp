@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/auth/login_page.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'dart:io';
@@ -11,6 +12,8 @@ import 'package:proyecto_rr_principal/screens/Settings/billing_details_screen.da
 import 'package:proyecto_rr_principal/screens/Settings/help_faqs_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/notification_setting_screen.dart';
 import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
+
 
 class StudentProfileScreenPersonal extends StatefulWidget {
   final int studentId;
@@ -77,16 +80,22 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
 
   @override
   Widget build(BuildContext context) {
+    //final themeProvider = Provider.of<ThemeProvider>(context);
+    //bool isDarkMode = themeProvider.isDarkMode;
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
+
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
+      // backgroundColor: isDarkMode == true ? Colors.black : Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[100],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
         elevation: 0,
         centerTitle: true,
         title: Text(
           'Profile',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
         ),
 
         actions: <Widget>[
@@ -118,7 +127,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: themeProvider.isDarkMode == true ? Colors.white : Colors.black,
             ),
           ),
           Text(
@@ -154,9 +163,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.settings, color: Colors.blue),
+                    child: Icon(Icons.settings, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                   ),
-                  title: Text('Settings', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Settings', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
                   onTap: () {
                     Navigator.push(
@@ -170,9 +179,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.account_balance_wallet, color: Colors.blue),
+                    child: Icon(Icons.account_balance_wallet, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                   ),
-                  title: Text('Billing Details', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Billing Details', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
                   onTap: () {
                     Navigator.push(
@@ -184,9 +193,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.notifications, color: Colors.blue),
+                    child: Icon(Icons.notifications, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                   ),
-                  title: Text('Notifications', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Notifications', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
                   onTap: () {
                     Navigator.push(
@@ -198,9 +207,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.2),
-                    child: Icon(Icons.info, color: Colors.blue),
+                    child: Icon(Icons.info, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue),
                   ),
-                  title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  title: Text('Help & FAQs', style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
                   onTap: () {
                     Navigator.push(
@@ -216,7 +225,32 @@ class _StudentProfileScreenState extends State<StudentProfileScreenPersonal> {
                     'Logout',
                     style: TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold),
                   ),
-                  onTap: _logOut,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Confirm Logout"),
+                          content: Text("Are you sure you want to log out?"),
+                          actions: [
+                            TextButton(
+                              child: Text("Cancel", style: TextStyle(color: Colors.black)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text("Logout", style: TextStyle(color: Colors.red)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _logOut();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),

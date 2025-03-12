@@ -7,6 +7,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'teacher_calendar_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/teacher_profile_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
+
 
 class TeacherListScreen extends StatefulWidget {
   final String subject;
@@ -125,6 +128,8 @@ class _TeacherListScreenState extends State<TeacherListScreen>{
 
   @override
   Widget build(BuildContext context){
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -135,7 +140,7 @@ class _TeacherListScreenState extends State<TeacherListScreen>{
           color: Colors.white,
         ),),
         centerTitle: true,
-        backgroundColor: Colors.blue[800],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.blue[800],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
           future: _fetchTeachers(widget.subject),
@@ -225,6 +230,7 @@ class _TeacherListScreenState extends State<TeacherListScreen>{
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final userID = userProvider.userId;
     final userRole = userProvider.role;
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
 
 
     return Card(
@@ -259,7 +265,7 @@ class _TeacherListScreenState extends State<TeacherListScreen>{
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: Colors.grey[700],
+            color: themeProvider.isDarkMode == true ? Colors.white : Colors.grey[700],
           ),
         ),
         trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey,),
@@ -270,12 +276,33 @@ class _TeacherListScreenState extends State<TeacherListScreen>{
             if (alumnoId != null) {
 
               final teacherId = teacher['id'] is int ? teacher['id'] : int.tryParse(teacher['id'].toString()) ?? 0;
+
+              final conn = await MySQLHelper.connect();
+              final result = await conn.query(
+                  'SELECT id FROM users WHERE teacher_id = ?',
+                  [
+                    teacherId
+                  ]
+              );
+              await conn.close();
+
+              final idTeacherUser = (result.isNotEmpty && result.first.fields['id'] != null)
+                  ? int.tryParse(result.first.fields['id'].toString()) ?? 0
+                  : 0;
+
+              print('teacher id: $teacherId and studentID: $alumnoId');
               print('UserId del estudiante: $userID y el TeacherId del profesor ${teacher['user_id']} ');
               Navigator.push(
                 context,
-                MaterialPageRoute(
+                /*MaterialPageRoute(
                   builder: (context) => TeacherProfileScreen(
                       teacherId: teacherId,
+                      studentId: alumnoId
+                  ),
+                ),*/
+                MaterialPageRoute(
+                  builder: (context) => TeacherProfileScreen(
+                      teacherId: idTeacherUser,
                       studentId: alumnoId
                   ),
                 ),

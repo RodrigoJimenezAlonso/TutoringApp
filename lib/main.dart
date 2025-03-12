@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/auth/login_page.dart';
+import 'package:proyecto_rr_principal/screens/Settings/theme_provider.dart';
 import 'package:proyecto_rr_principal/widget/home_page.dart';
 import 'providers/event_provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
@@ -30,6 +31,7 @@ void main() async {
           create: (context) => EventProvider(userProvider: Provider.of<UserProvider>(context, listen: false)),
           update: (context, userProvider, previous) => EventProvider(userProvider: userProvider),
         ),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: MyApp(),
     ),

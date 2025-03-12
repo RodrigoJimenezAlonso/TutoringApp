@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
+import 'dead_end_screen.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   @override
@@ -13,6 +17,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -48,7 +53,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
             SizedBox(height: 20),
 
-            _saveSettingsButton(),
+            _saveSettingsButton(context),
           ],
         ),
       ),
@@ -56,11 +61,12 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   Widget _sectionTitle(String title) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Text(
         title,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100]),
       ),
     );
   }
@@ -92,11 +98,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 
-  Widget _saveSettingsButton() {
+  Widget _saveSettingsButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Notification settings updated!")),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DeadEndScreen()),
         );
       },
       child: Text("Save Settings", style: TextStyle(fontSize: 16, color: Colors.white)),

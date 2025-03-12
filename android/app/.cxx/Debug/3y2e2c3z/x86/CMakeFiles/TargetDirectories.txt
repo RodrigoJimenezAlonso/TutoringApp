@@ -1,0 +1,2 @@
+/Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/android/app/.cxx/Debug/3y2e2c3z/x86/CMakeFiles/edit_cache.dir
+/Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/android/app/.cxx/Debug/3y2e2c3z/x86/CMakeFiles/rebuild_cache.dir

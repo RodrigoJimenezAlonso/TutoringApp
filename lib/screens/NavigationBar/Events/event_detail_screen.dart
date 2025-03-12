@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/src/single_connection.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../providers/user_provider.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -22,6 +26,23 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
     super.initState();
     selectedStartTime = widget.event['start_time'];
     selectedEndTime = widget.event['end_time'];
+
+    fetchUserDetails();
+  }
+
+  Map<String, dynamic>? userDetails;
+
+  Future<void> fetchUserDetails() async {
+    print("Ejecutando fetchUserDetails...");
+    userDetails = await getUserDetails(context);
+
+    if (userDetails == null) {
+      print("fetchUserDetails: No se pudieron obtener detalles del usuario.");
+    } else {
+      print("fetchUserDetails: Datos del usuario cargados: $userDetails");
+    }
+
+    setState(() {});
 
 
   }
@@ -45,7 +66,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
       print('Error deleting events: $e');
     }
   }
-
 
   Future<void> _editEvent(BuildContext context) async {
     final titleController = TextEditingController(text: widget.event['title']);
@@ -139,7 +159,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
             content: TextField(
               controller: messageController,
               decoration: InputDecoration(
-                labelText: 'Message to Professor'
+                  labelText: 'Message to Professor'
               ),
             ),
             actions: [
@@ -148,43 +168,43 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
                   child: Text('Cancel')
               ),
               ElevatedButton(
-                  child: Text('Book a class'),
-                  onPressed: ()async{
-                    final message = messageController.text.trim();
-                    final student_id = await getStudentId();
-                    if(student_id != null){
-                      try{
-                        final conn = await MySQLHelper.connect();
-                        await conn.query(
-                            'INSERT INTO bookings(event_id, student_id, message) VALUES(?,?,?)',
-                            [
-                              eventId,
-                              student_id,
-                              message,
-                            ],
-                        );
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Booked Successfully')
-                            ),
-                        );
-                      }catch(e){
-                        print('Error Booking Event: $e');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Error Booking Event')
-                          ),
-                        );
-                      }
-                    }else{
+                child: Text('Book a class'),
+                onPressed: ()async{
+                  final message = messageController.text.trim();
+                  final student_id = await getStudentId();
+                  if(student_id != null){
+                    try{
+                      final conn = await MySQLHelper.connect();
+                      await conn.query(
+                        'INSERT INTO bookings(event_id, student_id, message) VALUES(?,?,?)',
+                        [
+                          eventId,
+                          student_id,
+                          message,
+                        ],
+                      );
+                      Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('Student Id not found')
+                            content: Text('Booked Successfully')
+                        ),
+                      );
+                    }catch(e){
+                      print('Error Booking Event: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Error Booking Event')
                         ),
                       );
                     }
-                  },
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Student Id not found')
+                      ),
+                    );
+                  }
+                },
               ),
             ],
           );
@@ -208,7 +228,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
       ),
     );
   }
-
 
   Widget _buildDateTimePicker(
       BuildContext context,
@@ -252,95 +271,107 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
     final endTime = widget.event['end_time'];
     final formatedStartTime = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(startTime);
     final formatedEndTime = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(endTime);
+    final userConnected = widget.event['id'];
+    print('userdetails: $userDetails');
+
 
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: true,
-          iconTheme: IconThemeData(
-            color: Colors.white, //change your color here
-          ),
-          title: Text('Event Details',
-            style: TextStyle(
-              color: Colors.white
-            ),
-          ),
-          backgroundColor: Colors.blueAccent,
-          centerTitle: true,
-          elevation: 0,
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
         ),
-        body: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 4,
-                  child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildDetailedRow(
-                            'Event',
-                            widget.event['title'],
-                          ),
-                          _buildDetailedRow(
-                            'Description',
-                            widget.event['description'],
-                          ),
-                          _buildDetailedRow(
-                            'Start Time',
-                            formatedStartTime,
-                          ),
-                          _buildDetailedRow(
-                            'End Time',
-                            formatedEndTime,
-                          ),
-                        ],
-                      ),
-                  ),
-                ),
-
-
-                SizedBox(height: 20,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        title: Text('Event Details',
+          style: TextStyle(
+              color: Colors.white
+          ),
+        ),
+        backgroundColor: Colors.blue[800],
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: Container(
+        color: Colors.white,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildActionButton(
-                        'Delete',
-                        Colors.red,
-                        Icons.delete,
-                        ()=>_deleteEvent(context),
+                    Text(
+                      userDetails == null ? '' : 'Meeting with ${userDetails!['name']}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black
+                      ),
                     ),
-                    _buildActionButton(
-                      'Edit',
-                      Colors.blue,
-                          Icons.edit,
-                          ()=>_editEvent(context),
+                    SizedBox(height: 10,),
+                    _buildDetailedRow(
+                      'Event',
+                      widget.event['title'],
                     ),
-                    _buildActionButton(
+                    _buildDetailedRow(
+                      'Description',
+                      widget.event['description'],
+                    ),
+                    _buildDetailedRow(
+                      'Start Time',
+                      formatedStartTime,
+                    ),
+                    _buildDetailedRow(
+                      'End Time',
+                      formatedEndTime,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildActionButton(
+                  'Cancel',
+                  Colors.red,
+                  Icons.close_rounded,
+                      ()=>_deleteEvent(context),
+                ),
+                _buildActionButton(
+                  'Edit',
+                  Colors.blue,
+                  Icons.edit,
+                      ()=>_editEvent(context),
+                ),
+                /*_buildActionButton(
                       'Book Event',
                       Colors.green,
                           Icons.book,
                           ()=>_bookEvent(context, widget.event['id']),
-                    ),
-                  ],
-                )
+                    ),*/
               ],
-            ),
-           ),
-        );
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildDetailedRow(String label, String value){
     return Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 5.0,
-        ),
+      padding: const EdgeInsets.symmetric(
+        vertical: 5.0,
+      ),
       child: Row(
         children: [
           Text(
@@ -348,49 +379,105 @@ class _EventDetailScreenState extends State<EventDetailScreen>{
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: Colors.blueAccent,
+              color: Colors.blue[800],
             ),
           ),
           Expanded(
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
               ),
+            ),
           )
         ],
       ),
     );
   }
 
-
   Widget _buildActionButton(String label, Color color, IconData icon, VoidCallback onPressed){
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: color,
+          foregroundColor: Colors.white,
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: color,
+            ),
           ),
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 12,
-        )
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 12,
+          )
       ),
-        onPressed: onPressed,
-        icon: Icon(icon, color: Colors.white),
-        label: Text(
-            label,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
+      ),
     );
+  }
+
+  Future<Map<String, dynamic>?> getUserDetails(BuildContext context) async {
+    try {
+      final role = Provider.of<UserProvider>(context, listen: false).role;
+      final conn = await MySQLHelper.connect();
+
+      print("Obteniendo detalles del usuario. Rol: $role");
+
+      if (!widget.event.containsKey('id') || widget.event['id'] == null) {
+        print("Error: El evento no tiene un ID válido.");
+        return null;
+      }
+
+      int eventId = widget.event['id'];
+      print("Buscando información en la base de datos para el evento ID: $eventId");
+
+      String myColumn = role == 'teacher' ? 'user_id' : 'student_id';
+      String otherColumn = role == 'teacher' ? 'student_id' : 'user_id';
+      print('otherColumn: $otherColumn');
+
+      var eventResult = await conn.query(
+          'SELECT $otherColumn FROM events WHERE id = ?', [eventId]);
+
+      if (eventResult.isEmpty) {
+        print("No se encontró ningún resultado para el evento con ID $eventId");
+        return null;
+      }
+
+      int otherUserId = eventResult.first[0];
+      print("ID del otro usuario encontrado: $otherUserId");
+
+      // Consultar los datos del otro usuario (Profesor o Alumno)
+      String table = role == 'teacher' ? 'users' : 'teachers';
+      String nameColumn = role == 'teacher' ? 'username' : 'name';
+      String extraColumn = role == 'teacher' ? '' : ', subject';
+
+      print('namecolumn: $nameColumn');
+      print('extracolumn: $extraColumn');
+
+      var result = await conn.query(
+          'SELECT $nameColumn $extraColumn FROM $table WHERE id = ?', [otherUserId]);
+
+      if (result.isNotEmpty) {
+        print("Datos obtenidos del otro usuario: ${result.first}");
+        return {
+          'name': result.first[0],
+          'role': role == 'teacher' ? 'alumno' : 'profesor',
+          'subject': role == 'teacher' ? null : result.first[1], // Solo profesores tienen materia
+        };
+      } else {
+        print("No se encontró información del usuario con ID $otherUserId");
+      }
+    } catch (e) {
+      print('Error obteniendo detalles del usuario: $e');
+    }
+    return null;
   }
 }

@@ -48,14 +48,16 @@ class _EventAutomationPageState extends State<EventAutomationPage> {
             DateTime eventEndTime = eventStartTime.add(Duration(hours: 1));
 
             await conn.query(
-              'INSERT INTO events (user_id, title, description, start_time, end_time, is_automated) VALUES (?, ?, ?, ?, ?, ?)',
+              'INSERT INTO events (user_id, title, description, start_time, end_time, is_automated, status, student_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
               [
                 widget.userId,
-                'Automated Class',
-                'Automatically generated class',
+                'Available class slot',
+                'Click to book this meeting!',
                 eventStartTime.toIso8601String(),
                 eventEndTime.toIso8601String(),
                 1,
+                'available',
+                null
               ],
             );
           }

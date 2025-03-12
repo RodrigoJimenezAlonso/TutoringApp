@@ -6,7 +6,7 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="21"
-9        android:targetSdkVersion="34" />
+9        android:targetSdkVersion="35" />
 10    <!--
 11         The INTERNET permission is required for development. Specifically,
 12         the Flutter tool needs it to communicate with the running application
@@ -56,49 +56,49 @@
 37        </intent>
 38    </queries>
 39
-40    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-40-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-75
-40-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:9:22-72
-41    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-41-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:12:5-80
-41-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:12:22-77
-42    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-42-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:13:5-76
-42-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:13:22-73
-43    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- For Android 12 and above devices, the following permission is also required. -->
-43-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:14:5-79
-43-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:14:22-76
-44    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-44-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:19:5-76
-44-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:19:22-73
-45    <uses-permission android:name="android.permission.VIBRATE" />
-45-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-66
-45-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:7:22-63
-46    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-46-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-77
-46-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:8:22-74
+40    <uses-permission android:name="android.permission.VIBRATE" />
+40-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-66
+40-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:7:22-63
+41    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+41-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-77
+41-->[:flutter_local_notifications] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/flutter_local_notifications/intermediates/merged_manifest/debug/AndroidManifest.xml:8:22-74
+42    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+42-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-75
+42-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:9:22-72
+43    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+43-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:12:5-80
+43-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:12:22-77
+44    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+44-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:13:5-76
+44-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:13:22-73
+45    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- For Android 12 and above devices, the following permission is also required. -->
+45-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:14:5-79
+45-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:14:22-76
+46    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+46-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:19:5-76
+46-->[:agora_rtc_engine] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/agora_rtc_engine/intermediates/merged_manifest/debug/AndroidManifest.xml:19:22-73
 47
 48    <permission
-48-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+48-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
 49        android:name="com.example.proyecto_rr_principal.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-49-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+49-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
 50        android:protectionLevel="signature" />
-50-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+50-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
 51
 52    <uses-permission android:name="com.example.proyecto_rr_principal.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-52-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
-52-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+52-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+52-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
 53    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-53-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:7:5-77
-53-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:7:22-74
+53-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:7:5-77
+53-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:7:22-74
 54    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-54-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:8:5-94
-54-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:8:22-91
+54-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:8:5-94
+54-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:8:22-91
 55
 56    <application
 57        android:name="android.app.Application"
 58        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-58-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/c666c258fca39b3353b46678a6b928ab/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+58-->[androidx.core:core:1.13.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/74c1895ee15d4a639000e095e1132bc7/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
 59        android:debuggable="true"
 60        android:extractNativeLibs="true"
 61        android:icon="@mipmap/ic_launcher"
@@ -187,95 +187,95 @@
 122-->[:url_launcher_android] /Users/rodrigojimenez/StudioProjects/proyecto_rr_principal/build/url_launcher_android/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-71
 123
 124        <uses-library
-124-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:23:9-25:40
+124-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:23:9-25:40
 125            android:name="androidx.window.extensions"
-125-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:24:13-54
+125-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:24:13-54
 126            android:required="false" />
-126-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:25:13-37
+126-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:25:13-37
 127        <uses-library
-127-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:26:9-28:40
+127-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:26:9-28:40
 128            android:name="androidx.window.sidecar"
-128-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:27:13-51
+128-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:27:13-51
 129            android:required="false" />
-129-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/3e108fe9d597d03770ae82acaebb5b63/transformed/jetified-window-1.2.0/AndroidManifest.xml:28:13-37
+129-->[androidx.window:window:1.2.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/ace60e8e30df61681292083d41c836d5/transformed/jetified-window-1.2.0/AndroidManifest.xml:28:13-37
 130
 131        <provider
-131-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+131-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
 132            android:name="androidx.startup.InitializationProvider"
-132-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:25:13-67
+132-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:25:13-67
 133            android:authorities="com.example.proyecto_rr_principal.androidx-startup"
-133-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:26:13-68
+133-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:26:13-68
 134            android:exported="false" >
-134-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:27:13-37
+134-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:27:13-37
 135            <meta-data
-135-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+135-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
 136                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-136-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+136-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
 137                android:value="androidx.startup" />
-137-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/5d9083683aa46ad6646ca7a884bd56df/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+137-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/rodrigojimenez/.gradle/caches/transforms-3/06238db6d1b9fadfc90e00cec994ce15/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
 138            <meta-data
-138-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+138-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
 139                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-139-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+139-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
 140                android:value="androidx.startup" />
-140-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
 141        </provider>
 142
 143        <receiver
-143-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+143-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
 144            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-144-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+144-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
 145            android:directBootAware="false"
-145-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+145-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
 146            android:enabled="true"
-146-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+146-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
 147            android:exported="true"
-147-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+147-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
 148            android:permission="android.permission.DUMP" >
-148-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+148-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
 149            <intent-filter>
-149-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+149-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
 150                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-150-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
-150-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+150-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+150-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
 151            </intent-filter>
 152            <intent-filter>
-152-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+152-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
 153                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-153-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
-153-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+153-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+153-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
 154            </intent-filter>
 155            <intent-filter>
-155-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+155-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
 156                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-156-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
-156-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+156-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+156-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
 157            </intent-filter>
 158            <intent-filter>
-158-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+158-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
 159                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-159-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
-159-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/1e1e8719823df11c58e964840aa823f6/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+159-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+159-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/691ea7010aebab9266cc2c85ade0f719/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
 160            </intent-filter>
 161        </receiver>
 162
 163        <activity
-163-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:11:9-14:63
+163-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:11:9-14:63
 164            android:name="io.agora.rtc2.extensions.MediaProjectionMgr$LocalScreenCaptureAssistantActivity"
-164-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:11:19-89
+164-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:11:19-89
 165            android:configChanges="screenSize|orientation"
-165-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:12:13-59
+165-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:12:13-59
 166            android:screenOrientation="unspecified"
-166-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:13:13-52
+166-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:13:13-52
 167            android:theme="@android:style/Theme.Translucent" />
-167-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:14:13-61
+167-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:14:13-61
 168
 169        <service
-169-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:16:9-19:19
+169-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:16:9-19:19
 170            android:name="io.agora.rtc2.extensions.MediaProjectionMgr$LocalScreenSharingService"
-170-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:17:13-73
+170-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:17:13-73
 171            android:foregroundServiceType="mediaProjection" >
-171-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/d1c55b18c75a7ed1d61a81962903d4e1/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:18:13-60
+171-->[io.agora.rtc:full-screen-sharing:4.5.0.1] /Users/rodrigojimenez/.gradle/caches/transforms-3/b1cae16a98df75c875708707ce95facf/transformed/jetified-full-screen-sharing-4.5.0.1/AndroidManifest.xml:18:13-60
 172        </service>
 173    </application>
 174

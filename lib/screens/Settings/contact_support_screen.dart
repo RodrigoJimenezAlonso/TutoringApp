@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'dead_end_screen.dart';
+
 class ContactSupportScreen extends StatefulWidget {
   @override
   _ContactSupportScreenState createState() => _ContactSupportScreenState();
@@ -88,6 +90,10 @@ class _ContactSupportScreenState extends State<ContactSupportScreen> {
                         _messageController.clear();
                       });
                     }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DeadEndScreen()),
+                    );
                   },
                   backgroundColor: Colors.blueAccent,
                   child: Icon(Icons.send, color: Colors.white),

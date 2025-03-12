@@ -5,6 +5,8 @@ import 'package:proyecto_rr_principal/mysql.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Search/teacher_list_screen.dart';
 import '../../../providers/user_provider.dart';
 import 'create_subject.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+
 
 
 class SearchScreen extends StatefulWidget {
@@ -62,15 +64,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[800] : Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[100],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.grey[100],
         centerTitle: true,
         title: Text('Search', style:
           TextStyle(
-            color: Colors.black,
+            color: themeProvider.isDarkMode == true ? Colors.white : Colors.black,
           ),
         ),
         actions: <Widget>[
@@ -99,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search a Subject...',
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
@@ -138,7 +141,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            leading: Icon(Icons.menu_book, color: Colors.blue[600],),
+                            leading: Icon(Icons.menu_book, color: themeProvider.isDarkMode == true ? Colors.white : Colors.blue[600],),
                             title: Text(
                               subject,
                               style: TextStyle(

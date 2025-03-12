@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Events/events.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/chat/message_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Search/search_screen.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/StudentProfile/student_profile_screen_personal.dart';
 import 'package:proyecto_rr_principal/screens/NavigationBar/Profiles/teacherProfile/teacher_profile_screen_personal.dart';
-
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 import '../mysql.dart';
 
 class HomePage extends StatefulWidget {
@@ -65,6 +66,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
+
     // Si aún está cargando, muestra un indicador de carga
     if (isLoading) {
       return Scaffold(
@@ -136,9 +139,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.grey[100] ?? Colors.grey,
-        color: Colors.blue[800] ?? Colors.grey,
-        buttonBackgroundColor: Colors.blue[800],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] ?? Colors.grey : Colors.grey[100] ?? Colors.grey,
+        color: themeProvider.isDarkMode == true ? Colors.black : Colors.blue[800] ?? Colors.grey,
+        buttonBackgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.blue[800],
         height: 70,
         items: navItems.asMap().entries.map((entry) {
           int index = entry.key;

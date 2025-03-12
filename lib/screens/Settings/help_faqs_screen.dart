@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_rr_principal/screens/Settings/contact_support_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 
 class HelpFAQScreen extends StatelessWidget {
   final List<Map<String, String>> faqs = [
@@ -35,6 +37,7 @@ class HelpFAQScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -65,14 +68,14 @@ class HelpFAQScreen extends StatelessWidget {
                         collapsedIconColor: Colors.grey[600],
                         title: Text(
                           faq["question"]!,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: themeProvider.isDarkMode == true ? Colors.white : Colors.black87),
                         ),
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
                             child: Text(
                               faq["answer"]!,
-                              style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.4),
+                              style: TextStyle(fontSize: 14, color: themeProvider.isDarkMode == true ? Colors.grey[100] : Colors.grey[800], height: 1.4),
                             ),
                           ),
                         ],

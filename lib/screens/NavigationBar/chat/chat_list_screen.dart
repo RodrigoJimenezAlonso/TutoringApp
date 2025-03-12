@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_rr_principal/mysql.dart';
 import 'chat_screen.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 
 class ChatListScreen extends StatefulWidget {
   final int userId;
@@ -16,14 +18,24 @@ class ChatListScreen extends StatefulWidget {
   });
 
 
+
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
 }
 
 
 
+
+
 class _ChatListScreenState extends State<ChatListScreen> {
+
+
   bool _isSearching = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadChatList();
+  }
 
 
 
@@ -141,10 +153,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.blue[800],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.blue[800],
         title: _isSearching
             ? TextField(
               autofocus: true,
@@ -176,7 +189,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _loadChatList(),
         builder: (context, snapshot) {

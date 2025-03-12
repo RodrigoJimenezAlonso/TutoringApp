@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
+import 'dead_end_screen.dart';
+
 
 class BillingDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
       appBar: AppBar(
-        title: Text("Billing Details", style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        title: Text("Billing Details", style: TextStyle(color: themeProvider.isDarkMode == true ? Colors.white : Colors.black)),
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.black : Colors.white,
         elevation: 1,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: themeProvider.isDarkMode == true ? Colors.white : Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -19,11 +24,11 @@ class BillingDetailsScreen extends StatelessWidget {
             _sectionTitle("Saved Payment Methods"),
             SizedBox(height: 10),
 
-            _buildPaymentMethodCard("Apple Pay", "**** 1234", "assets/images/apple_payment.png"),
-            _buildPaymentMethodCard("PayPal", "your.name@example.com", "assets/images/paypal.png"),
+            _buildPaymentMethodCard(context, "Apple Pay", "**** 1234", "assets/images/apple_payment.png"),
+            _buildPaymentMethodCard(context, "PayPal", "your.name@example.com", "assets/images/paypal.png"),
 
             SizedBox(height: 10),
-            _addPaymentMethodButton(),
+            _addPaymentMethodButton(context),
 
             Divider(height: 40),
 
@@ -31,6 +36,7 @@ class BillingDetailsScreen extends StatelessWidget {
             SizedBox(height: 10),
 
             _buildBillingAddress(
+              context,
               name: "your Name",
               address: "Birmingham B15 2TT",
               phone: "+44 0121 414 3344",
@@ -38,7 +44,7 @@ class BillingDetailsScreen extends StatelessWidget {
 
             SizedBox(height: 20),
 
-            _editBillingDetailsButton(),
+            _editBillingDetailsButton(context),
           ],
         ),
       ),
@@ -52,7 +58,7 @@ class BillingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentMethodCard(String type, String detail, String imagePath) {
+  Widget _buildPaymentMethodCard(BuildContext context, String type, String detail, String imagePath) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -69,14 +75,24 @@ class BillingDetailsScreen extends StatelessWidget {
         title: Text(type, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         subtitle: Text(detail, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DeadEndScreen()),
+          );
+        },
       ),
     );
   }
 
-  Widget _addPaymentMethodButton() {
+  Widget _addPaymentMethodButton(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () {}, // Placeholder
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DeadEndScreen()),
+        );
+      }, // Placeholder
       icon: Icon(Icons.add, color: Colors.white),
       label: Text("Add Payment Method", style: TextStyle(fontSize: 16, color: Colors.white)),
       style: ElevatedButton.styleFrom(
@@ -87,7 +103,7 @@ class BillingDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBillingAddress({required String name, required String address, required String phone}) {
+  Widget _buildBillingAddress(BuildContext context, {required String name, required String address, required String phone}) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -96,14 +112,24 @@ class BillingDetailsScreen extends StatelessWidget {
         title: Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         subtitle: Text("$address\nPhone: $phone", style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]),
-        onTap: () {}, // Placeholder for future edit function
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DeadEndScreen()),
+          );
+        }, // Placeholder for future edit function
       ),
     );
   }
 
-  Widget _editBillingDetailsButton() {
+  Widget _editBillingDetailsButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {}, // Placeholder
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DeadEndScreen()),
+        );
+      }, // Placeholder
       child: Text("Edit Billing Details", style: TextStyle(fontSize: 16, color: Colors.white)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.black87,

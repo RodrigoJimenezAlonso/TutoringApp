@@ -7,6 +7,7 @@ import 'package:proyecto_rr_principal/providers/user_provider.dart';
 import 'event_detail_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../date_time_picker.dart';
+import 'package:proyecto_rr_principal/screens/Settings/settings.dart';
 
 class EventsController extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _EventsControllerState extends State<EventsController> {
     super.initState();
     _fetchEvents();
     _startCleaningTimer();
+
   }
 
   void _startCleaningTimer(){
@@ -245,20 +247,21 @@ class _EventsControllerState extends State<EventsController> {
   @override
   Widget build(BuildContext context) {
     final role = Provider.of<UserProvider>(context, listen: false).role;
+    final SettingsProvider themeProvider = Provider.of<SettingsProvider>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
             'Upcoming Events',
             style: TextStyle(
-              color: Colors.black,
+              color: themeProvider.isDarkMode == true ? Colors.white : Colors.black,
             ),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: themeProvider.isDarkMode == true ? Colors.grey[900] : Colors.grey[100],
         elevation: 0,
         actions: [
-          if(role == 'teacher')
+          /*if(role == 'teacher')
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () async {
@@ -270,7 +273,7 @@ class _EventsControllerState extends State<EventsController> {
                   _addEventDialog(context, selectedDate);
                 }
               },
-            ),
+            ),*/
           IconButton(
               icon: Icon(
                 Icons.school,
@@ -419,6 +422,7 @@ class _EventsControllerState extends State<EventsController> {
   }
 
   Widget _buildEventItem(Map<String, dynamic> event){
+    final role = Provider.of<UserProvider>(context, listen: false).role;
     final formattedDate = DateFormat('dd/MM/yyyy HH:mm', 'es_ES').format(event['start_time']);
     Color statusColor;
     if(event['status'] == 'pending'){
@@ -433,7 +437,7 @@ class _EventsControllerState extends State<EventsController> {
         vertical: 8,
       ),
       leading: CircleAvatar(
-        backgroundColor: Colors.blue,
+        backgroundColor: statusColor,
         child: Icon(
           Icons.event,
           color: Colors.white,
@@ -472,7 +476,7 @@ class _EventsControllerState extends State<EventsController> {
         ),
       ),
       onTap: () async {
-        if(event['status'] == 'pending'){
+        if(event['status'] == 'pending' && role == 'teacher' ){
           _showConfirmButton(context, event);
         }else{
           final update = await Navigator.push(

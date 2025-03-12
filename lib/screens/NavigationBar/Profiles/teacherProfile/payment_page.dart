@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../../mysql.dart';
+import 'package:proyecto_rr_principal/widget/home_page.dart';
 
 void paymentPage(BuildContext context, int availabilityId, int studentId) {
   showModalBottomSheet(
@@ -82,6 +82,9 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
                   backgroundColor: Colors.green,
                 ),
               );
+              Navigator.pop(context);
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Text("Confirm payment"),
           ),
