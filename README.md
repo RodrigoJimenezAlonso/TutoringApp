@@ -1,5 +1,3 @@
-¡Tienes razón! Para que no salga “gris”, aquí va el **README COMPLETO** en Markdown, con **todos los bloques de código bien cerrados** y usando tu repo real. Cópialo tal cual:
-
 # TutorFinder App
 
 Full-stack mobile platform connecting students with tutors — developed as my **Final Year Project at the University of Birmingham**.
@@ -47,6 +45,11 @@ Built to make tutoring more **personalized, accessible, and efficient**.
 * Profiles & settings (including dark mode)
 * Stripe payments *(proof of concept)*
 
+<img width="1449" height="779" alt="Captura de pantalla 2025-07-18 a las 11 39 45" src="https://github.com/user-attachments/assets/1af538f7-2bc7-45bb-843a-6a422bfe110d" />
+<img width="349" height="775" alt="Captura de pantalla 2025-03-12 a las 13 45 35" src="https://github.com/user-attachments/assets/0e2902ad-b516-4b05-9262-7e58c4ac642d" />
+
+
+
 ## Project Structure
 
 ```text
@@ -62,6 +65,8 @@ lib/
 backend/          -> MariaDB + Docker setup
 docs/             -> additional documentation
 ```
+<img width="3840" height="2184" alt="Editor _ Mermaid Chart-2025-03-29-141743" src="https://github.com/user-attachments/assets/5f5c5858-827b-43e7-aaff-b86394574f43" />
+
 
 ## Setup
 
