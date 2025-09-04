@@ -17,6 +17,11 @@ Full-stack mobile platform connecting students with tutors — developed as my *
 
 ## Overview
 
+![Flutter](https://img.shields.io/badge/Flutter-3.22-blue?logo=flutter)
+![MariaDB](https://img.shields.io/badge/MariaDB-11.x-orange?logo=mariadb)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+
+
 TutorFinder simplifies how students connect with tutors specialized in specific subjects and concepts. It offers:
 
 * AI-powered recommendations *(planned)*
@@ -55,6 +60,10 @@ Built to make tutoring more **personalized, accessible, and efficient**.
 
 ### Booking
 <img width="250" alt="Booking Screen" src="https://github.com/user-attachments/assets/f069a96e-bba1-441a-8068-5c6a618514a1" />
+
+## Backend / Database Server
+👉 Available at: [TutorFinder Database Server](https://github.com/tu-usuario/tutorfinder-db)
+
 
 
 
