@@ -45,8 +45,18 @@ Built to make tutoring more **personalized, accessible, and efficient**.
 * Profiles & settings (including dark mode)
 * Stripe payments *(proof of concept)*
 
-<img width="1449" height="779" alt="Captura de pantalla 2025-07-18 a las 11 39 45" src="https://github.com/user-attachments/assets/1af538f7-2bc7-45bb-843a-6a422bfe110d" />
-<img width="349" height="775" alt="Captura de pantalla 2025-03-12 a las 13 45 35" src="https://github.com/user-attachments/assets/0e2902ad-b516-4b05-9262-7e58c4ac642d" />
+## Screenshots
+
+### Login
+<img width="400" alt="Login Screen" src="https://github.com/user-attachments/assets/1af538f7-2bc7-45bb-843a-6a422bfe110d" />
+
+### Profile
+<img width="250" alt="Chat Screen" src="https://github.com/user-attachments/assets/0e2902ad-b516-4b05-9262-7e58c4ac642d" />
+
+### Booking
+<img width="250" alt="Booking Screen" src="https://github.com/user-attachments/assets/f069a96e-bba1-441a-8068-5c6a618514a1" />
+
+
 
 
 
